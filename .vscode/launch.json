@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug TypeScript",
+      "program": "${file}",
+      "cwd": "${workspaceRoot}",
+      "runtimeArgs": ["-r", "ts-node/register"]
+    }
+  ]
+}

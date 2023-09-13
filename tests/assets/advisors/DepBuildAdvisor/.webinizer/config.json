@@ -1,0 +1,22 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "DepBuildAdvisorTest",
+  "desc": "Test config file for DepBuildAdvisor",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": true,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": true,
+        "needModularize": true
+      },
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      }
+    }
+  },
+  "target": "static"
+}

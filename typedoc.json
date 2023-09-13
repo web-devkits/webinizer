@@ -1,0 +1,14 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Webinizer",
+  "entryPoints": ["typings/webinizer.d.ts"],
+  "cleanOutputDir": true,
+  "lightHighlightTheme": "github-light",
+  "darkHighlightTheme": "github-dark",
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "out": "docs",
+  "readme": "none",
+  "tsconfig": "tsconfig.base.json"
+}

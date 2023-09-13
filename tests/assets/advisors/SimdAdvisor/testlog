@@ -1,0 +1,1 @@
+emcc: error: Passing any of -msse, -msse2, -msse3, -mssse3, -msse4.1, -msse4.2, -msse4, -mavx, -mfpu=neon flags also requires passing -msimd128!

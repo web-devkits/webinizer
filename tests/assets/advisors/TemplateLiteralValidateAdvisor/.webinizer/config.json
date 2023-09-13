@@ -1,0 +1,31 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "TemplateLiteralValidateAdvisorTest",
+  "desc": "Test config file for TemplateLiteralValidateAdvisor",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": true,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": true,
+        "needModularize": true
+      },
+      "builders": [
+        {
+          "__type__": "MakeBuilder",
+          "id": 0,
+          "desc": "make",
+          "args": "",
+          "rootBuildFilePath": "${projectRoo}"
+        }
+      ],
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      }
+    }
+  },
+  "target": "static"
+}

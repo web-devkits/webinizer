@@ -1,0 +1,22 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "ExportNameAdvisorTest",
+  "desc": "Test config file for ExportNameAdvisor",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": true,
+        "needPthread": true,
+        "needCppException": false,
+        "needSimd": true,
+        "needModularize": true
+      },
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      }
+    }
+  },
+  "target": "static"
+}

@@ -1,0 +1,59 @@
+{
+  "__type__": "AdvisorPipelineConfig",
+  "pipelines": [
+    {
+      "tag": "make",
+      "advisors": [
+        { "__type__": "BuildNativeToolAdvisor" },
+        { "__type__": "HeaderMissingAdvisor" },
+        { "__type__": "MakeTargetAdvisor" },
+        { "__type__": "SDLAdvisor" },
+        { "__type__": "TestTargetErrorAdvisor" }
+      ]
+    },
+    {
+      "tag": "cmake",
+      "advisors": [{ "__type__": "SDLAdvisor" }]
+    },
+    {
+      "tag": "pre-build",
+      "advisors": [
+        { "__type__": "BuildPathValidateAdvisor" },
+        { "__type__": "BuildStepValidateAdvisor" },
+        { "__type__": "CppExceptionAdvisor" },
+        { "__type__": "DepCheckAdvisor" },
+        { "__type__": "ExportNameAdvisor" },
+        { "__type__": "MainLoopAdvisor" },
+        { "__type__": "PThreadAdvisor" },
+        { "__type__": "TemplateLiteralValidateAdvisor" }
+      ]
+    },
+    {
+      "tag": "cfg_args",
+      "advisors": [
+        { "__type__": "BuildTargetSpecifyAdvisor" },
+        { "__type__": "CCompilerAdvisor" },
+        { "__type__": "ExportNameAdvisor" },
+        { "__type__": "FpmathAdvisor" },
+        { "__type__": "InitialMemoryAdvisor" },
+        { "__type__": "InlineAsmAdvisor" },
+        { "__type__": "RanlibAdvisor" },
+        { "__type__": "SimdAdvisor" },
+        { "__type__": "StripAdvisor" },
+        { "__type__": "X86AsmAdvisor" }
+      ]
+    },
+    {
+      "tag": "dep-build",
+      "advisors": [{ "__type__": "DepBuildAdvisor" }]
+    },
+    {
+      "tag": "default",
+      "advisors": [{ "__type__": "ErrorsNotHandledAdvisor" }]
+    },
+    {
+      "tag": "demo",
+      "advisors": [{ "__type__": "DemoAdvisor" }]
+    }
+  ]
+}

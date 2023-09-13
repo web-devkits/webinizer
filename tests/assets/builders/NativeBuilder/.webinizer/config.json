@@ -1,0 +1,31 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "NativeBuilderTest",
+  "desc": "Test config file for NativeBuilder",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": false,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": false,
+        "needModularize": false
+      },
+      "builders": [
+        {
+          "__type__": "NativeBuilder",
+          "id": 0,
+          "desc": "Run native commands without emscripten related configs",
+          "args": "gcc main.c -o main",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ],
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      }
+    }
+  },
+  "target": "static"
+}
