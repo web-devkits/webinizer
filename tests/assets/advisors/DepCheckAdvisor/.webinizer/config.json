@@ -1,0 +1,32 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "DepCheckAdvisorTest",
+  "desc": "Test config file for DepCheckAdvisor",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": false,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": false,
+        "needModularize": false
+      },
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      },
+
+      "builders": [
+        {
+          "__type__": "CMakeBuilder",
+          "id": 0,
+          "desc": "CMake",
+          "args": "",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ]
+    }
+  },
+  "target": "static"
+}

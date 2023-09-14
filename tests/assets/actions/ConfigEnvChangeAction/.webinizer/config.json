@@ -1,0 +1,44 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "ConfigEnvChangeActionTest",
+  "desc": "Test config file for ConfigEnvChangeAction",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": true,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": false,
+        "needModularize": true
+      },
+      "builders": [
+        {
+          "__type__": "MakeBuilder",
+          "id": 0,
+          "desc": "make",
+          "args": "",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ],
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-sMODULARIZE=1"
+      },
+      "exportedFuncs": "",
+      "exportedRuntimeMethods": "",
+      "preloadFiles": []
+    }
+  },
+  "target": "static",
+  "overallEnvsMap": {
+    "self": {
+      "cflags": "-msimd128",
+      "ldflags": "-sMODULARIZE=1"
+    }
+  },
+  "overallEnvs": {
+    "cflags": "-msimd128",
+    "ldflags": "-sMODULARIZE=1"
+  }
+}

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ ! -x "$(command -v $CC)" ]; then
+  echo "Error: cannot find $CC"
+  exit 1
+fi
+
+# Generate Makefile
+echo "Generating Makefile ..."
+echo "CC=$CC" > Makefile
+echo "CFLAGS=-Wall -Werror" >> Makefile
+echo "LDFLAGS=" >> Makefile
+echo "TARGET=main" >> Makefile
+echo "" >> Makefile
+echo "all: \$(TARGET)" >> Makefile
+echo "" >> Makefile
+echo "\$(TARGET): main.c" >> Makefile
+echo "\t\$(CC) \$(CFLAGS) \$(LDFLAGS) -o \$(TARGET) main.c" >> Makefile
+echo "" >> Makefile
+echo "clean:" >> Makefile
+echo "\trm -f \$(TARGET)" >> Makefile
+
+exit 0

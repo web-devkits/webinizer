@@ -1,0 +1,31 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "CMakeBuilderTest",
+  "desc": "Test config file for CMakeBuilder",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": false,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": false,
+        "needModularize": false
+      },
+      "builders": [
+        {
+          "__type__": "CMakeBuilder",
+          "id": 0,
+          "desc": "CMake",
+          "args": "",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ],
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      }
+    }
+  },
+  "target": "static"
+}

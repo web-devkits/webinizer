@@ -1,0 +1,31 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "DemoBuilderTest",
+  "desc": "Config file for DemoBuilder",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": false,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": false,
+        "needModularize": false
+      },
+      "builders": [
+        {
+          "__type__": "DemoBuilder",
+          "id": 0,
+          "desc": "demo builder",
+          "args": "",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ],
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      }
+    }
+  },
+  "target": "static"
+}

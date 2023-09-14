@@ -1,0 +1,42 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "EmccBuilderTest",
+  "version": "1.0.0",
+  "desc": "Project for Unit test of EmccBuilder",
+  "useDefaultConfig": false,
+  "buildTargets": {
+    "static": {
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      },
+      "builders": [
+        {
+          "__type__": "EmccBuilder",
+          "id": 0,
+          "desc": "emcc",
+          "args": "main.c -o main.js",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ],
+      "options": {
+        "needSimd": true,
+        "needModularize": true
+      },
+      "exportedFuncs": "",
+      "exportedRuntimeMethods": "",
+      "preloadFiles": []
+    }
+  },
+  "overallEnvsMap": {
+    "self": {
+      "cflags": "-msimd128",
+      "ldflags": "-msimd128 -sMODULARIZE=1"
+    }
+  },
+  "overallEnvs": {
+    "cflags": "-msimd128",
+    "ldflags": "-msimd128 -sMODULARIZE=1"
+  },
+  "target": "static"
+}

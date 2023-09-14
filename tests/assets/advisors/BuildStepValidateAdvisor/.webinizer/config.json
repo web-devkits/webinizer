@@ -1,0 +1,32 @@
+{
+  "__type__": "ProjectConfig",
+  "name": "BuildStepValidateAdvisorTest",
+  "desc": "Test config file for BuildStepValidateAdvisor",
+  "version": "1.0.0",
+  "buildTargets": {
+    "static": {
+      "options": {
+        "needMainLoop": false,
+        "needPthread": false,
+        "needCppException": false,
+        "needSimd": false,
+        "needModularize": false
+      },
+      "envs": {
+        "cflags": "-msimd128",
+        "ldflags": "-msimd128 -sMODULARIZE=1"
+      },
+
+      "builders": [
+        {
+          "__type__": "MakeBuilder",
+          "id": 0,
+          "desc": "make",
+          "args": "",
+          "rootBuildFilePath": "${projectRoot}"
+        }
+      ]
+    }
+  },
+  "target": "static"
+}
