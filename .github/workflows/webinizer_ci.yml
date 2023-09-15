@@ -1,0 +1,69 @@
+name: Webinizer CI
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "documentation/**"
+      - "README.md"
+      - "CODE_OF_CONDUCT.md"
+      - "CONTRIBUTING.md"
+      - "LICENSE"
+      - "security.md"
+      - "SUPPORT.md"
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths-ignore:
+      - "documentation/**"
+      - "README.md"
+      - "CODE_OF_CONDUCT.md"
+      - "CONTRIBUTING.md"
+      - "LICENSE"
+      - "security.md"
+      - "SUPPORT.md"
+  # allow to be triggered manually
+  workflow_dispatch:
+
+# Cancel any in-flight jobs for the same PR/branch so there's only one active
+# at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run_unit_tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 5
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y upgrade
+          sudo apt-get install -y git python3 cmake curl build-essential
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: 3.1.31
+
+      - name: Verify emsdk setup
+        run: emcc -v
+
+      - name: Setup node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.1
+
+      - name: Install tool dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: |
+          ./.github/scripts/config_dir.sh
+          npm run test
