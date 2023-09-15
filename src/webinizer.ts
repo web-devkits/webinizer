@@ -8,6 +8,8 @@
  * Webinizer Extension APIs
  */
 
+// Add a comment to test CI.
+
 export { loadAllModulesInDirctory, init } from "./init";
 
 export { getLogger } from "./helper";
