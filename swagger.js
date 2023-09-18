@@ -7,7 +7,7 @@ const gitHubRepoPath = "https://github.com/bytecodealliance/wasm-micro-runtime.g
 
 const gitHubProjectRootPath = `${projectPoolRootPath}/wasm-micro-runtime`;
 
-const registryServerPath = "http://ning-workstation.bj.intel.com:4873/";
+const registryServerPath = "http://ning-workstation.bj.intel.com:4873";
 const registryProjectRootPath = `${projectPoolRootPath}/webinizer-demo-main-app-1.0.0`;
 
 const doc = {
@@ -160,7 +160,7 @@ const doc = {
 
       requestConfigUpdate: {
         $config: {
-          version: "1.0.4",
+          version: "1.0.1",
           target: "static",
         },
       },
@@ -224,6 +224,7 @@ const doc = {
         ],
       },
 
+      requestTemplateEval: "${projectRoot}",
       responseTemplateEval: { val: registryProjectRootPath },
 
       requestGlobalSettings: {
@@ -301,7 +302,7 @@ const doc = {
       },
 
       responseFileContent: {
-        name: `${registryProjectRootPath}/main.c`,
+        name: `${registryProjectRootPath}/main_4_testing.c`,
         content:
           '#include <stdio.h>\n#include "demo_lib_a.h"\n#include "demo_lib_c.h"\n\nint main() {\n    printf("Hello from demo main app.\\n");\n    MyFuncA();\n    MyFuncC();\n    return 0;\n}\n',
       },
