@@ -15,7 +15,8 @@
     "pretest": "npm run build",
     "test": "cross-env TS_NODE_PROJECT='./tests/tsconfig.json' mocha -r ts-node/register tests/index.ts --timeout 5000",
     "doc": "rimraf docs && typedoc",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "swagger-autogen": "node ./swagger.js"
   },
   "repository": {
     "type": "git",
@@ -68,7 +69,8 @@
     "typedoc": "^0.23.24",
     "typedoc-plugin-missing-exports": "^1.0.0",
     "typedoc-plugin-rename-defaults": "^0.6.4",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "swagger-autogen": "^2.23.5"
   },
   "dependencies": {
     "adm-zip": "^0.5.10",
