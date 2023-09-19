@@ -71,7 +71,6 @@ async function startServer() {
   });
 
   app.post("/api/projects/zip-file", async (req, res) => {
-    // #swagger.ignore = true
     // #swagger.tags = ['Projects']
     // #swagger.operationId = '/api/projects/zip-file/post'
     // #swagger.description = 'Create project by uploading zip file.'
