@@ -34,13 +34,17 @@ In addition, ``Swagger UI`` is also a great alternative tool, here we use ``Swag
 
 .. code-block:: bash
 
+  # Pull the swagger-ui docker image
+  $ docker pull swaggerapi/swagger-ui
+
+  # Start up the container
+  # Note. please replace the project repo mapping path
+  # `webinizer-demo/webinizer-code/webinizer` with
+  # your own webinizer project absolute path
   $ docker run -p 80:8080 \
                -e SWAGGER_JSON=/foo/swagger-output.json \
                -v webinizer-demo/webinizer-code/webinizer:/foo \
                swaggerapi/swagger-ui
-  # please replace the project repo mapping path
-  # `webinizer-demo/webinizer-code/webinizer` with
-  # your own webinizer project absolute path
 
 Browse to ``http://localhost:80`` to visualize and interact with the API's resource, and following image shows the swagger spec preview results and how to fire request ``GET /api/projects/profile`` to get all project profile list. As for some POST HTTP requests which need required parameters or request payload, you can refer to the examples and follow the schemas to construct.
 
