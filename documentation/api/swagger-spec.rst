@@ -9,7 +9,7 @@ This section will introduce how to set up swagger specification auto-generation 
 Generation
 **********
 
-In ``package.json``, the ``"swagger-autogen": "^2.23.5"`` npm package definition has been added in ``devDependencies``, and the ``"swagger-autogen": "node ./swagger.js"`` script command has been added in ``scripts``. The ``swagger.js`` in root is the key configuration file of the ``swagger-autogen`` module, including the target file, endpoints source file and the schemas definitions. More details are available `here
+In ``package.json``, ensure the ``swagger-autogen`` npm package definition has been added in the``devDependencies`` field, and the ``swagger-autogen`` script command has been added in the ``scripts`` field. Besides, the ``swagger.js`` file in root is the key configuration file of the ``swagger-autogen`` module, including the target file, endpoints source file and the schema definitions. More details are available `here
 <https://github.com/swagger-autogen/swagger-autogen#usage-with-optionals>`_.
 
 .. code-block:: shell
