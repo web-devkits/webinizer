@@ -26,7 +26,7 @@ In swagger specification file, you can browse the definitions, request parameter
 
 There are many useful tools available to achieve the functionalities mentioned above.
 
-If you are using `VS Code`, you can install the ``Swagger Viewer`` (ADD a link here) from the extension market, and execute the ``Preview Swagger`` command from the `swagger specification` file editor to visualize and interact the API's resource as following images shows.
+If you are using `VS Code`, you can install the `Swagger Viewer <https://marketplace.visualstudio.com/items?itemName=Arjun.swagger-viewer>`_ from the extension market, and execute the ``Preview Swagger`` command from the `swagger specification` file editor to visualize and interact with the API's resource as following images shows.
 
 
 .. image:: ../images/test/swagger-previewer.png
