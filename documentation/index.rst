@@ -23,5 +23,9 @@ Webinizer is a tool to help you bring applications to the Web. The initial funct
    extensions/use-an-extension.rst
    extensions/install-an-extension.rst
    extensions/test-an-extension.rst
-   
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Developing Webinizer
+
+   api/swagger-spec.rst

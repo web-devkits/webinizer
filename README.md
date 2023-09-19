@@ -67,6 +67,8 @@ The steps to setup the development environment are similar to those described in
 - `npm run test` to run the unit tests, see [tests/README.md](./tests/README.md) for details.
 - `npm run lint` to format code with ESLint.
 - `npm run doc` to generate the Webinizer Extension API document into `./docs`.
+- `npm run swagger-autogen` to generate the swagger specification for server RESTful APIs , see
+  [generate swagger specification](./documentation/api/swagger-spec.rst) for details.
 
 ### Recommended IDE setup
 

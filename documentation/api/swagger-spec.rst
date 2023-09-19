@@ -3,7 +3,7 @@
 Generate Swagger specification file for server RESTful APIs
 ######################
 
-This section will introduce how to set up swagger specification auto-generation tool ``swagger-autogen``, how to use it to generate spec file and how to visualize and try the requests execution with `Swagger UI
+This section will introduce how to set up swagger specification auto-generation tool `swagger-autogen <https://github.com/swagger-autogen/swagger-autogen>`_, how to use it to generate spec file and how to visualize and try the requests execution with `Swagger UI
 <https://github.com/swagger-api/swagger-ui>`_ tool.
 
 Generation
@@ -24,7 +24,7 @@ Visualization & Interaction
 
 In swagger specification file, you can browse the definitions, request parameters, request payload, response payload and their corresponding examples of all APIs. Moreover, with the help of swagger UI tool, you can visualize and interact with the API's resources without having any of the implementation logic in place.
 
-There are many useful tools available to achieve the functionalities mentioned above. 
+There are many useful tools available to achieve the functionalities mentioned above.
 
 If you are using `VS Code`, you can install the ``Swagger Viewer`` (ADD a link here) from the extension market, and execute the ``Preview Swagger`` command from the `swagger specification` file editor to visualize and interact the API's resource as following images shows.
 
