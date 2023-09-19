@@ -1,6 +1,6 @@
 .. _swagger:
 
-Swagger
+Generate Swagger specification file for server RESTful APIs
 ######################
 
 This section will introduce how to set up swagger specification auto-generation tool ``swagger-autogen``, how to use it to generate spec file and how to visualize and try the requests execution with `Swagger UI
