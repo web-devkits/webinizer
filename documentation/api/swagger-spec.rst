@@ -22,7 +22,7 @@ The ``swagger-output.json`` under the project root directory will be generated a
 Visualization & Interaction
 ***************************
 
-In swagger specification file, we can browse the definitions, request parameters, request payload, response payload and their corresponding examples of all apis. Moreover, with the help of swagger UI tool, to visualize and interact with the API's resources without having any of the implementation logic in place.
+In swagger specification file, you can browse the definitions, request parameters, request payload, response payload and their corresponding examples of all APIs. Moreover, with the help of swagger UI tool, you can visualize and interact with the API's resources without having any of the implementation logic in place.
 
 There are many useful tools available to achieve the functionalities mentioned above. 
 
