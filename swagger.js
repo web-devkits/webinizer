@@ -7,7 +7,9 @@ const gitHubRepoPath = "https://github.com/bytecodealliance/wasm-micro-runtime.g
 
 const gitHubProjectRootPath = `${projectPoolRootPath}/wasm-micro-runtime`;
 
-const registryServerPath = "http://ning-workstation.bj.intel.com:4873";
+// use your own setup registry server path instead
+const registryServerPath = "http://localhost:4873";
+
 const registryProjectRootPath = `${projectPoolRootPath}/webinizer-demo-main-app-1.0.0`;
 
 const doc = {
