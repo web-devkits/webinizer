@@ -30,7 +30,7 @@ There are many useful tools available to achieve the effects that mentioned abov
 .. image:: ../images/test/swagger-previewer.png
 
 
-In addition, ``Swagger UI`` is also a great alternative tool, here we use ``Swagger UI`` as an example and install it in `Docker` mode according to the `installation doc <https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/installation.md#docker>`_. After running ``docker pull swaggerapi/swagger-ui`` to pull the `swagger-ui` docker image, we can run following command to start up the container.
+In addition, ``Swagger UI`` is also a great alternative tool. You can run following commands to install it in `Docker mode` <https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/installation.md#docker>`_ and start up the container.
 
 .. code-block:: bash
 
