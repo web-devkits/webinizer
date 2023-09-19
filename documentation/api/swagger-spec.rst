@@ -24,7 +24,9 @@ Visualization & Interaction
 
 In swagger specification file, we can browse the definitions, request parameters, request payload, response payload and their corresponding examples of all apis. Moreover, with the help of swagger UI tool, to visualize and interact with the API's resources without having any of the implementation logic in place.
 
-There are many useful tools available to achieve the effects that mentioned above. Such as, if you want to make it in the `Visual Studio Code`, you can install ``Swagger Viewer`` from the extension market, and execute the ``Preview Swagger`` command from the `swagger specification` file editor to visualize and interact the API's resource as following images shows.
+There are many useful tools available to achieve the functionalities mentioned above. 
+
+If you are using `VS Code`, you can install the ``Swagger Viewer`` (ADD a link here) from the extension market, and execute the ``Preview Swagger`` command from the `swagger specification` file editor to visualize and interact the API's resource as following images shows.
 
 
 .. image:: ../images/test/swagger-previewer.png
