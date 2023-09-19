@@ -55,5 +55,5 @@ Browse to ``http://localhost:80`` to visualize and interact with the API's resou
 NOTE
 ****
 
-If you want to test the APIs related to `registry` like ``POST /api/projects/registry`` and ``POST /api/projects/{root}/publication``, you should setup a npm compatible registry server at first. There are some helpful framework like `verdaccio <https://github.com/verdaccio/verdaccio>`_ to help build a registry quickly.
+If you want to test the APIs related to `registry` like ``POST /api/projects/registry`` and ``POST /api/projects/{root}/publication``, you should setup a npm compatible registry server at first. There are some helpful frameworks like `verdaccio <https://github.com/verdaccio/verdaccio>`_ to help build a registry quickly.
 
