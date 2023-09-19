@@ -42,7 +42,7 @@ In addition, ``Swagger UI`` is also a great alternative tool, here we use ``Swag
   # `webinizer-demo/webinizer-code/webinizer` with
   # your own webinizer project absolute path
 
-Browse ``http://localhost:80`` to visualize and interact the API's resource, and following image shows the swagger spec preview results and how to fire request ``GET /api/projects/profile`` to get all project profile list. As for some POST HTTP requests which need required parameters or request payload, you can refer to the examples and follow the schemas to construct.
+Browse to ``http://localhost:80`` to visualize and interact with the API's resource, and following image shows the swagger spec preview results and how to fire request ``GET /api/projects/profile`` to get all project profile list. As for some POST HTTP requests which need required parameters or request payload, you can refer to the examples and follow the schemas to construct.
 
 .. image:: ../images/test/swagger-ui.png
 
