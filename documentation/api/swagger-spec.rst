@@ -32,7 +32,7 @@ If you are using `VS Code`, you can install the ``Swagger Viewer`` (ADD a link h
 .. image:: ../images/test/swagger-previewer.png
 
 
-In addition, ``Swagger UI`` is also a great alternative tool. You can run following commands to install it in `Docker mode` <https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/installation.md#docker>`_ and start up the container.
+In addition, ``Swagger UI`` is also a great alternative tool. You can run following commands to install it in `Docker mode <https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/installation.md#docker>`_ and start up the container.
 
 .. code-block:: bash
 
