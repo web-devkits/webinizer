@@ -35,11 +35,11 @@ concurrency:
 
 jobs:
   run_unit_tests:
-    uses: intel/webinizer/.github/workflows/setup_env_workflow.yml@main
+    uses: intel/webinizer/.github/workflows/shared_workflow.yml@main
     with:
       taskType: unit-test
 
   linting_check:
-    uses: intel/webinizer/.github/workflows/setup_env_workflow.yml@main
+    uses: intel/webinizer/.github/workflows/shared_workflow.yml@main
     with:
       taskType: linting-check

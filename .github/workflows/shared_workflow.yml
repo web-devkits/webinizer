@@ -1,4 +1,4 @@
-name: Setup Envrionment
+name: Setup Environment and Exectute Testing
 
 on:
   workflow_call:
@@ -8,13 +8,13 @@ on:
         type: string
 
 jobs:
-  run_unit_tests:
+  webinizer_ci:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 5t
+          fetch-depth: 5
 
       - name: Install system dependencies
         run: |
