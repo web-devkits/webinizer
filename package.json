@@ -11,7 +11,7 @@
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "lint": "eslint src",
-    "lint-fix":"eslint --fix sec",
+    "lint-fix": "eslint --fix src",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "pretest": "npm run build",
     "test": "cross-env TS_NODE_PROJECT='./tests/tsconfig.json' mocha -r ts-node/register tests/index.ts --timeout 5000",
