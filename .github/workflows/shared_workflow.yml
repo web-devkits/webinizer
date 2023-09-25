@@ -1,4 +1,4 @@
-name: Setup Environment and Exectute Testing
+name: Setup Environment and Execute Testing
 
 on:
   workflow_call:
