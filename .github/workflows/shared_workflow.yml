@@ -1,0 +1,49 @@
+name: Setup Environment and Execute Testing
+
+on:
+  workflow_call:
+    inputs:
+      taskType:
+        required: true
+        type: string
+
+jobs:
+  webinizer_ci:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 5
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y upgrade
+          sudo apt-get install -y git python3 cmake curl build-essential
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: 3.1.31
+
+      - name: Verify emsdk setup
+        run: emcc -v
+
+      - name: Setup node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.1
+
+      - name: Install tool dependencies
+        run: npm install
+
+      - name: Unit Testing
+        if: ${{ inputs.taskType == 'unit-test' }}
+        run: |
+          ./.github/scripts/config_dir.sh
+          npm run test
+
+      - name: Linting Check
+        if: ${{ inputs.taskType == 'linting-check' }}
+        run: npm run lint

@@ -35,35 +35,11 @@ concurrency:
 
 jobs:
   run_unit_tests:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 5
+    uses: intel/webinizer/.github/workflows/shared_workflow.yml@main
+    with:
+      taskType: unit-test
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get -y upgrade
-          sudo apt-get install -y git python3 cmake curl build-essential
-
-      - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v12
-        with:
-          version: 3.1.31
-
-      - name: Verify emsdk setup
-        run: emcc -v
-
-      - name: Setup node version
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.17.1
-
-      - name: Install tool dependencies
-        run: npm install
-
-      - name: Run unit tests
-        run: |
-          ./.github/scripts/config_dir.sh
-          npm run test
+  linting_check:
+    uses: intel/webinizer/.github/workflows/shared_workflow.yml@main
+    with:
+      taskType: linting-check
