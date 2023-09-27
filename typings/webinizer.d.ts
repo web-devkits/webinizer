@@ -173,6 +173,30 @@ declare module "webinizer" {
      */
     readonly desc: string | undefined;
     /**
+     * The project keywords.
+     */
+    readonly keywords: string | undefined;
+    /**
+     * The project homepage address.
+     */
+    readonly homepage: string | undefined;
+    /**
+     * The project's issue tracker address.
+     */
+    readonly bugs: string | undefined;
+    /**
+     * The project license.
+     */
+    readonly license: string | undefined;
+    /**
+     * The project author.
+     */
+    readonly author: IProjectPerson | undefined;
+    /**
+     * The project repository address.
+     */
+    readonly repository: IProjectRepository | undefined;
+    /**
      * The build target for the project. Currently we only support value `static` and `shared`.
      *
      * - `static` build target means to build your project with static linking. All dependent libraries will be built into
@@ -276,6 +300,39 @@ declare module "webinizer" {
   export type ProjectPkgConfig = {
     [k in PkgConfigType]: string;
   };
+
+  /**
+   * An object represents a person.
+   */
+  export interface IProjectPerson {
+    /**
+     * Person name.
+     */
+    name: string;
+    /**
+     * Email address.
+     */
+    email?: string;
+    /**
+     * Peronal homepage address.
+     */
+    url?: string;
+  }
+
+  /**
+   * An object represents the project repository.
+   */
+  export interface IProjectRepository {
+    /**
+     * Repository type, i.e., git.
+     */
+    type: string;
+    /**
+     * The URL to the project repository.
+     */
+    url: string;
+  }
+
   /**
    * An object represents the project build options.
    */

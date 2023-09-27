@@ -126,6 +126,55 @@ export const configSchema = {
       description: "The description of the project.",
       type: "string",
     },
+    keywords: {
+      description: "The project keywords.",
+      type: "string",
+    },
+    homepage: {
+      description: "The project homepage address.",
+      type: "string",
+      pattern: "^(https|http)://",
+    },
+    bugs: {
+      description: "The project's issue tracker address.",
+      type: "string",
+      pattern: "^(https|http)://",
+    },
+    license: {
+      description: "The project license.",
+      type: "string",
+    },
+    author: {
+      description: "The project author info.",
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        email: {
+          type: "string",
+          pattern:
+            "^([0-9a-zA-Z]([-\\.\\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\\w]*[0-9a-zA-Z]\\.)+[a-zA-Z]{2,9})$",
+        },
+        url: {
+          type: "string",
+          pattern: "^(https|http)://",
+        },
+      },
+      additionalProperties: false,
+    },
+    repository: {
+      description: "The project repository address.",
+      type: "object",
+      properties: {
+        type: { type: "string" },
+        url: {
+          type: "string",
+          pattern: "^(https|https+git|git+https|git)://",
+        },
+        directory: { type: "string" },
+      },
+      required: ["type", "url"],
+      additionalProperties: false,
+    },
     img: {
       description: "The path to the project icon image.",
       type: "string",

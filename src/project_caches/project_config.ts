@@ -35,6 +35,8 @@ import {
   IProjectBuildConfig,
   IJsonObject,
   IBuilder,
+  IProjectPerson,
+  IProjectRepository,
 } from "webinizer";
 import { configSchema, buildTargetConfigSchema } from "../schemas/config_schema";
 
@@ -893,6 +895,76 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     }
   }
 
+  get keywords(): string | undefined {
+    return this.data.keywords as string;
+  }
+
+  set keywords(v: string | undefined) {
+    this.data = { keywords: v };
+    if (this.keywords === undefined && this.proj.meta.get("keywords") === undefined) return;
+    if (this.keywords !== ((this.proj.meta.get("keywords") || []) as string[]).join(",")) {
+      this.proj.meta.set(
+        "keywords",
+        this.keywords ? this.keywords.split(",").map((k) => k.trim()) : []
+      );
+    }
+  }
+
+  get homepage(): string | undefined {
+    return this.data.homepage as string;
+  }
+
+  set homepage(v: string | undefined) {
+    this.data = { homepage: v };
+    if (this.homepage !== this.proj.meta.get("homepage")) {
+      this.proj.meta.set("homepage", this.homepage);
+    }
+  }
+
+  get bugs(): string | undefined {
+    return this.data.bugs as string;
+  }
+
+  set bugs(v: string | undefined) {
+    this.data = { bugs: v };
+    if (this.bugs !== this.proj.meta.get("bugs")) {
+      this.proj.meta.set("bugs", this.bugs);
+    }
+  }
+
+  get license(): string | undefined {
+    return this.data.license as string;
+  }
+
+  set license(v: string | undefined) {
+    this.data = { license: v };
+    if (this.license !== this.proj.meta.get("license")) {
+      this.proj.meta.set("license", this.license);
+    }
+  }
+
+  get author(): IProjectPerson | undefined {
+    return this.data.author as IProjectPerson;
+  }
+
+  set author(v: IProjectPerson | undefined) {
+    this.data = { author: v };
+    if (JSON.stringify(this.author) !== JSON.stringify(this.proj.meta.get("author"))) {
+      this.proj.meta.set("author", _.cloneDeep(this.author));
+    }
+  }
+
+  get repository(): IProjectRepository | undefined {
+    return this.data.repository as IProjectRepository;
+  }
+
+  set repository(v: IProjectRepository | undefined) {
+    this.data = { repository: v };
+    if (JSON.stringify(this.repository) !== JSON.stringify(this.proj.meta.get("repository"))) {
+      this.proj.meta.set("repository", _.cloneDeep(this.repository));
+    }
+  }
+
   // img: path to project image file
   get img(): string | undefined {
     return this.data.img as string;
@@ -1375,6 +1447,27 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       if (jsonKeys.includes("desc")) {
         this.proj.meta.set("description", this.desc);
       }
+      if (jsonKeys.includes("keywords")) {
+        this.proj.meta.set(
+          "keywords",
+          this.keywords ? this.keywords.split(",").map((k) => k.trim()) : undefined
+        );
+      }
+      if (jsonKeys.includes("homepage")) {
+        this.proj.meta.set("homepage", this.homepage);
+      }
+      if (jsonKeys.includes("bugs")) {
+        this.proj.meta.set("bugs", this.bugs);
+      }
+      if (jsonKeys.includes("license")) {
+        this.proj.meta.set("license", this.license);
+      }
+      if (jsonKeys.includes("author")) {
+        this.proj.meta.set("author", _.cloneDeep(this.author));
+      }
+      if (jsonKeys.includes("repository")) {
+        this.proj.meta.set("repository", _.cloneDeep(this.repository));
+      }
       if (jsonKeys.includes("buildTargets")) {
         this._buildTargetConfigMap = null;
         this.convertBuildTargetsToMeta();
@@ -1540,6 +1633,27 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     }
     if (dotProp.has(diffContent, "description")) {
       this.desc = (this.proj.meta.get("description") || "") as string;
+    }
+    if (dotProp.has(diffContent, "keywords")) {
+      this.keywords = this.proj.meta.get("keywords")
+        ? (this.proj.meta.get("keywords") as string[]).map((k) => k.trim()).join(",")
+        : undefined;
+    }
+    if (dotProp.has(diffContent, "homepage")) {
+      this.homepage = (this.proj.meta.get("homepage") || "") as string;
+    }
+    if (dotProp.has(diffContent, "bugs")) {
+      this.bugs = (this.proj.meta.get("bugs") || "") as string;
+    }
+    if (dotProp.has(diffContent, "license")) {
+      this.license = (this.proj.meta.get("license") || "") as string;
+    }
+    if (dotProp.has(diffContent, "author")) {
+      this.author = (_.cloneDeep(this.proj.meta.get("author")) || undefined) as IProjectPerson;
+    }
+    if (dotProp.has(diffContent, "repository")) {
+      this.repository = (_.cloneDeep(this.proj.meta.get("repository")) ||
+        undefined) as IProjectRepository;
     }
     /* handle webinizer specific fields */
     if (dotProp.has(diffContent, "webinizer.nativeLibrary")) {
