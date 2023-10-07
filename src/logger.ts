@@ -45,10 +45,10 @@ type logLevelType = (typeof levelNames)[number];
 // The default level which controls the output. Each Logger could specify its own to replace this
 // default is "info"
 let defaultLevelValue = 1;
-// Globally we could config the categories to show. It's the allowed categories substract all
-// categories forbidden. Note empty categoriesAllowed below actaully means all are allowed
+// Globally we could config the categories to show. It's the allowed categories subtract all
+// categories forbidden. Note empty categoriesAllowed below actually means all are allowed
 
-let categoriesAllowed: Dict<boolean> = {}; // empty actaully means all are allowed
+let categoriesAllowed: Dict<boolean> = {}; // empty actually means all are allowed
 let categoriesForbidden: Dict<boolean> = {}; // empty means none is forbidden
 
 const formatters = {
@@ -290,7 +290,7 @@ const logger = {
   },
 
   /**
-   * Create a Logger. It's called get() for convention, but it's actaully mean create(). That means,
+   * Create a Logger. It's called get() for convention, but it's actually mean create(). That means,
    * if you call it with the same category twice, it create two separated Logger for you, instead of
    * a shared one.
    * @param category this classifies the log and itself will show and highlight in console
@@ -304,7 +304,7 @@ const logger = {
   /**
    * Only allow some categories to show. Set it to [] means to clear this, i.e. allowing all to show
    * @param cats Categories allowed to show, like a filter. [] means allowing all.
-   * @returns Old cateogories
+   * @returns Old categories
    */
   onlyAllowCategories(cats: string[]): string[] {
     const old = Array.from(Object.keys(categoriesAllowed));
