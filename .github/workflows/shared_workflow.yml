@@ -17,7 +17,10 @@ jobs:
           fetch-depth: 5
 
       - name: Install system dependencies
+        # https://github.com/actions/runner-images/issues/7192
+        # https://github.com/orgs/community/discussions/47863
         run: |
+          sudo apt-mark hold grub-efi-amd64-signed
           sudo apt-get update
           sudo apt-get -y upgrade
           sudo apt-get install -y git python3 cmake curl build-essential
