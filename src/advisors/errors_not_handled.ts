@@ -36,7 +36,7 @@ class ErrorsNotHandledAdvisor implements IAdvisor {
   ): Promise<IAdviseResult> {
     const action = new ShowSuggestionAction(
       "error",
-      `This error is \`not\` handled by Webinizer, please try to resolve it manually:\n\n\`\`\`${req.error}\`\`\``,
+      `This error is \`not\` handled by Webinizer, please try to resolve it manually:\n\n\`\`\`\n${req.error}\n\`\`\``,
       null,
       req.location ? req.location.toFileRegion() : null
     );

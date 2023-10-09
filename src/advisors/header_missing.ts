@@ -41,7 +41,7 @@ class HeaderMissingAdvisor implements IAdvisor {
 - If the library has already been installed, then the reason may be that the header directory is not included in compiler/linker flags, please add \`-I\${HEADER_PATH}\` to compiler/linker flags while building.`;
     const action = new ShowSuggestionAction(
       "error",
-      `**Error log**\n\n\`\`\`${errorMsg}\`\`\`\n\n${suggestionContent}`,
+      `**Error log**\n\n\`\`\`\n${errorMsg}\n\`\`\`\n\n${suggestionContent}`,
       null,
       null
     );
