@@ -33,18 +33,27 @@ export const buildTargetMetaSchema = {
       ],
     },
     structure: {
+      description: "Webinizer specific metadata fields.",
       type: "object",
       properties: {
         envs: {
+          description: "The environment variables defined for build.",
           type: "object",
           properties: {
-            cflags: { type: "string" },
-            ldflags: { type: "string" },
+            cflags: {
+              description: "The compiler flags defined for build.",
+              type: "string",
+            },
+            ldflags: {
+              description: "The linker flags defined for build.",
+              type: "string",
+            },
           },
           required: ["cflags", "ldflags"],
           additionalProperties: false,
         },
         buildSteps: {
+          description: "The build steps defined for build.",
           type: "array",
           items: {
             type: "object",
@@ -58,6 +67,7 @@ export const buildTargetMetaSchema = {
           },
         },
         pkgConfig: {
+          description: "The package configurations defined for projects depending on this.",
           type: "object",
           properties: {
             prefix: { type: "string", minLength: 1 },
@@ -100,6 +110,7 @@ export const webinizerFieldMetaSchema = {
       type: "object",
       properties: {
         buildTargets: {
+          description: "The supported build targets and corresponding build configurations.",
           type: "object",
           properties: {
             static: { $ref: "buildTargetMeta.schema#" },
@@ -109,12 +120,14 @@ export const webinizerFieldMetaSchema = {
           additionalProperties: false,
         },
         toolchain: {
+          description: "The information of toolchain used for build.",
           type: "object",
           properties: {
             emscripten: { type: "string" },
           },
         },
         nativeLibrary: {
+          description: "The native library information used for conversion.",
           type: "object",
           properties: {
             name: { type: "string", minLength: 1 },
@@ -132,17 +145,76 @@ export const metaSchema = {
   type: "object",
   properties: {
     name: {
+      description: "The name of the project.",
       type: "string",
       maxLength: 214,
       minLength: 1,
       pattern: "^(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)?/)?[a-z0-9-~][a-z0-9-._~]*$",
     },
     version: {
+      description: "The version of the project.",
       type: "string",
       pattern: "^[0-9]+.[0-9]+.[0-9]+(?:-[a-z]+(?:[_\\.-]*[a-z0-9]+)*)*$",
     },
-    description: { type: "string" },
+    description: {
+      description: "The description of the project.",
+      type: "string",
+    },
+    keywords: {
+      description: "The project keywords.",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    homepage: {
+      description: "The project homepage address.",
+      type: "string",
+      pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|http)://)",
+    },
+    bugs: {
+      description: "The project's issue tracker address.",
+      type: "string",
+      pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|http)://)",
+    },
+    license: {
+      description: "The project license.",
+      type: "string",
+    },
+    author: {
+      description: "The project author info.",
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        email: {
+          type: "string",
+          pattern:
+            "(^$)|(^(?=s*$))|(^(?!.*S))|([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)",
+        },
+        url: {
+          type: "string",
+          pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|http)://)",
+        },
+      },
+      required: ["name"],
+      additionalProperties: false,
+    },
+    repository: {
+      description: "The project repository address.",
+      type: "object",
+      properties: {
+        type: { type: "string" },
+        url: {
+          type: "string",
+          pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|https+git|git+https|git)://)",
+        },
+        directory: { type: "string" },
+      },
+      required: ["type", "url"],
+      additionalProperties: false,
+    },
     dependencies: {
+      description: "The project dependent packages.",
       type: "object",
       patternProperties: {
         "^(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)?/)?[a-z0-9-~][a-z0-9-._~]*$": { type: "string" },
