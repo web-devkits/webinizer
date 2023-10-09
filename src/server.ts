@@ -1145,7 +1145,7 @@ async function startServer() {
         const data = matchedData(req);
         // eslint-disable-next-line no-control-regex
         const content = API.getBuildLog(data.root).replace(/\u001b/g, "\\u001b");
-        res.status(200).json({ content: content });
+        res.status(200).json({ content });
       } catch (e) {
         log.error("get build log error\n", H.normalizeErrorOutput(e as Error));
         res.status(400).json(H.serializeError(e as Error));
