@@ -170,12 +170,12 @@ export const metaSchema = {
     homepage: {
       description: "The project homepage address.",
       type: "string",
-      pattern: "^(https|http)://",
+      pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|http)://)",
     },
     bugs: {
       description: "The project's issue tracker address.",
       type: "string",
-      pattern: "^(https|http)://",
+      pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|http)://)",
     },
     license: {
       description: "The project license.",
@@ -189,11 +189,11 @@ export const metaSchema = {
         email: {
           type: "string",
           pattern:
-            "^([0-9a-zA-Z]([-\\.\\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\\w]*[0-9a-zA-Z]\\.)+[a-zA-Z]{2,9})$",
+            "(^$)|(^(?=s*$))|(^(?!.*S))|([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)",
         },
         url: {
           type: "string",
-          pattern: "^(https|http)://",
+          pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|http)://)",
         },
       },
       required: ["name"],
@@ -206,7 +206,7 @@ export const metaSchema = {
         type: { type: "string" },
         url: {
           type: "string",
-          pattern: "^(https|https+git|git+https|git)://",
+          pattern: "(^$)|(^(?=s*$))|(^(?!.*S))|(^(https|https+git|git+https|git)://)",
         },
         directory: { type: "string" },
       },
