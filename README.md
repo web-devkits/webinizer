@@ -56,6 +56,10 @@ Webinizer provides an extension mechanism for developers to extend the capabilit
 - [How to install an Extension](./documentation/extensions/install-an-extension.rst)
 - [How to test an Extension](./documentation/extensions/use-an-extension.rst)
 
+### Areas under development
+
+We're considering how to create a package format and repository hosting for libraries and applications ported to Wasm. There are proposals for [module format](https://github.com/intel/webinizer/wiki/Wasm-Library-Registry-Design) and [registry hosting](https://github.com/intel/webinizer/wiki/Registry-for-ported-WebAssembly-libraries) in our [wiki](https://github.com/intel/webinizer/wiki).
+
 ## Setting up the development environment
 
 The steps to setup the development environment are similar to those described in
