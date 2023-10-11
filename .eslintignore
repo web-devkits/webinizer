@@ -1,0 +1,6 @@
+tests/assets/*
+node_modules/*
+documentation/*
+docs/*
+files/*
+**/dist/*
