@@ -38,6 +38,7 @@ class DemoBuilder implements webinizer.IBuilder {
   static __type__ = "DemoBuilder";
   type = DemoBuilder.__type__;
   desc = "demo builder";
+  command = "demo builder";
   args: string[];
   id: number;
   private _proj: webinizer.Project;
@@ -54,6 +55,7 @@ class DemoBuilder implements webinizer.IBuilder {
       __type__: this.type,
       id: this.id,
       desc: this.desc,
+      command: this.command,
       args: shlex.join(this.args),
       rootBuildFilePath: this._rootBuildFilePath,
     };

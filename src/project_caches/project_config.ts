@@ -758,27 +758,34 @@ class ProjectBuildConfig implements IProjectBuildConfig {
 
   convertBuildersToMeta() {
     if (this.rawBuilders && this.rawBuilders.length) {
-      const buildStepMap = new Map<string, string>([
-        ["CMakeBuilder", "emcmake cmake"],
-        ["ConfigureBuilder", "emconfigure ./configure"],
-        ["MakeBuilder", "emmake make"],
-        ["EmccBuilder", "emcc"],
-      ]);
+      const buildStepMap = new Map<string, string>();
+      this._proj.getAllBuilders().forEach((b) => {
+        const builderJson = b.toJson();
+        buildStepMap.set(builderJson.__type__, builderJson.command);
+      });
       const buildSteps = this.rawBuilders.map((b) => {
-        if (b.__type__ === "NativeBuilder") {
-          // parse NativeBuilder args to command and args
-          const [first, ...rest] = shlex.split(b.args as string);
+        if (buildStepMap.has(b.__type__)) {
+          if (b.__type__ === "NativeBuilder") {
+            // parse NativeBuilder args to command and args
+            const [first, ...rest] = shlex.split(b.args as string);
+            return {
+              command: first,
+              args: shlex.join(rest),
+              cwd: b.rootBuildFilePath || "${projectRoot}",
+            };
+          }
           return {
-            command: first,
-            args: shlex.join(rest),
+            command: buildStepMap.get(b.__type__),
+            args: b.args || "",
             cwd: b.rootBuildFilePath || "${projectRoot}",
-          };
+          } as H.Dict<unknown>;
+        } else {
+          // not a registered and available builder, throw error.
+          throw new H.WError(
+            `Unknown build step type ${b.__type__}`,
+            errorCode.WEBINIZER_BUILDER_UNKNOWN
+          );
         }
-        return {
-          command: buildStepMap.get(b.__type__) || "",
-          args: b.args || "",
-          cwd: b.rootBuildFilePath || "${projectRoot}",
-        } as H.Dict<unknown>;
       });
       if (
         !H.isObjectEmpty(
@@ -1598,15 +1605,18 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       if (dotProp.has(diffContent, `webinizer.buildTargets.${target}.buildSteps`)) {
         // convert buildSteps to rawBuilders
         const steps = (targetJson.buildSteps || []) as H.Dict<string>[];
-        const builderTypeMap = new Map<string, string>([
-          ["emcmake cmake", "CMakeBuilder"],
-          ["emconfigure ./configure", "ConfigureBuilder"],
-          ["emmake make", "MakeBuilder"],
-          ["emcc", "EmccBuilder"],
-        ]);
+        const builderTypeMap = new Map<string, string>();
+        this.proj.getAllBuilders().forEach((b) => {
+          const builderJson = b.toJson();
+          if (builderJson.command) {
+            // NativeBuilder has an empty default command, exclude it
+            builderTypeMap.set(builderJson.command, builderJson.__type__);
+          }
+        });
 
         const rawBuilders = steps.map((step) => {
           const builderType = builderTypeMap.get(step.command);
+          // FIXME. this will treat all other unknown builders as NativeBuilder without a warning.
           return {
             __type__: builderType || "NativeBuilder",
             args: builderType ? step.args : `${step.command} ${step.args}`,

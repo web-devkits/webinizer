@@ -238,6 +238,7 @@ Below is the example code of a new builder DemoBuilder of ``webinizer-extension-
     static __type__ = "DemoBuilder";
     type = DemoBuilder.__type__;
     desc = "demo builder";
+    command = "demo builder";
     args: string[];
     id: number;
     private _proj: webinizer.Project;
@@ -254,6 +255,7 @@ Below is the example code of a new builder DemoBuilder of ``webinizer-extension-
         __type__: this.type,
         id: this.id,
         desc: this.desc,
+        command: this.command,
         args: shlex.join(this.args),
         rootBuildFilePath: this._rootBuildFilePath,
       };

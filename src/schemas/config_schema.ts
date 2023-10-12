@@ -53,6 +53,7 @@ export const buildTargetConfigSchema = {
           __type__: { type: "string" },
           id: { type: "number" },
           desc: { type: "string" },
+          command: { type: "string" },
           args: { type: "string" },
           rootBuildFilePath: { type: "string" },
         },

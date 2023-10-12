@@ -59,6 +59,7 @@ describe("action", () => {
         __type__: "CMakeBuilder",
         id: 1,
         desc: "cmake",
+        command: "emcmake cmake",
         args: "",
         rootBuildFilePath: "${projectRoot}",
       },

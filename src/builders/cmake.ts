@@ -61,6 +61,7 @@ class CMakeBuilder implements IBuilder {
   static __type__ = "CMakeBuilder";
   type = CMakeBuilder.__type__;
   desc = "CMake";
+  command = "emcmake cmake";
   id: number;
   args: string[];
   private _proj: IProject;
@@ -76,6 +77,7 @@ class CMakeBuilder implements IBuilder {
       __type__: this.type,
       id: this.id,
       desc: this.desc,
+      command: this.command,
       args: shlex.join(this.args),
       rootBuildFilePath: this._rootBuildFilePath,
     };
@@ -173,7 +175,7 @@ class CMakeBuilder implements IBuilder {
     }
 
     const cmd =
-      "emcmake cmake ./ " +
+      `${this.command} ./ ` +
       (this.args
         ? shlex
             .join([...new Set(this.args.map((a) => this._proj.evalTemplateLiterals(a)))])

@@ -98,6 +98,14 @@ export class Project implements IProject {
     return builders;
   }
 
+  getAllBuilders(): IBuilder[] {
+    const builders: IBuilder[] = [];
+    for (const bf of ALL_BUILDER_FACTORIES.factoriesMap().values()) {
+      builders.push(bf.createDefault(this));
+    }
+    return builders;
+  }
+
   getTemplateLiterals(withMarkdown = false): string[] {
     const templates: string[] = [];
     for (const c in this.constant) {

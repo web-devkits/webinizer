@@ -44,6 +44,7 @@ const enum errorCode {
   WEBINIZER_DIR_MV_FAIL = "WEBINIZER_DIR_MV_FAIL", // Failed to rename a directory.
   /* Builder */
   WEBINIZER_BUILDER_UNDEFINED = "WEBINIZER_BUILDER_UNDEFINED", // No builders are defined yet for building.
+  WEBINIZER_BUILDER_UNKNOWN = "WEBINIZER_BUILDER_UNKNOWN", // Unknown builder type.
   /* Advisor */
   WEBINIZER_ADVISOR_UNKNOWN = "WEBINIZER_ADVISOR_UNKNOWN", // Unknown advisor type.
   /* Advisor Pipeline */
