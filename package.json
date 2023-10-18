@@ -5,7 +5,7 @@
   "main": "dist/webinizer.js",
   "types": "typings/webinizer.d.ts",
   "scripts": {
-    "build": "rimraf dist && tsc -b ./tsconfig.all.json",
+    "build": "rimraf dist && tsc -b ./tsconfig.all.json && cp -r ./src/assets ./dist/assets",
     "preserve": "npm run build",
     "serve": "cross-env NODE_ENV=development concurrently \"tsc -b --watch ./tsconfig.all.json\" \"nodemon -q dist/server.js\"",
     "prestart": "npm run build",
@@ -66,12 +66,12 @@
     "nodemon": "^3.0.1",
     "rimraf": "^3.0.2",
     "shiki": "^0.12.1",
+    "swagger-autogen": "^2.23.5",
     "ts-node": "^10.9.1",
     "typedoc": "^0.23.24",
     "typedoc-plugin-missing-exports": "^1.0.0",
     "typedoc-plugin-rename-defaults": "^0.6.4",
-    "typescript": "^4.9.4",
-    "swagger-autogen": "^2.23.5"
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "adm-zip": "^0.5.10",

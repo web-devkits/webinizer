@@ -5,6 +5,7 @@
  *-----------------------------------------------------------------------------------------------*/
 
 import * as C from "./constants";
+import * as H from "./helper";
 import fs from "graceful-fs";
 import path from "path";
 import { buildDirTree } from "./dtree";

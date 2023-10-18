@@ -31,14 +31,46 @@ async function startServer() {
     })
   );
   app.use(cors());
+
   app.use(
     helmet({
       strictTransportSecurity: {
         maxAge: 31536000,
         includeSubDomains: true,
       },
+      crossOriginResourcePolicy: {
+        policy: "cross-origin",
+      },
     })
   );
+
+  app.use("/assets/icons", express.static(__dirname + "/assets/icons"));
+
+  app.get(
+    "/projects/:root/icons/:name",
+    param("root")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    param("name")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    (req, res) => {
+      const data = matchedData(req);
+      const filePath = API.constructIconPath(data.root, data.name);
+      res.sendFile(filePath);
+    }
+  );
+
+  app.get("/api/projects/icons", (req, res) => {
+    try {
+      const root = decodeURIComponent(String(req.query.root).trim());
+      const iconsArr = API.getAllAvailableIcons(req.headers.host as string, root);
+      res.status(200).json(iconsArr);
+    } catch (e) {
+      log.error("get projects profile error\n", H.normalizeErrorOutput(e as Error));
+      res.status(400).json(H.serializeError(e as Error));
+    }
+  });
 
   app.get("/api/projects/profile", async (req, res) => {
     // #swagger.tags = ['Profile']
@@ -168,6 +200,23 @@ async function startServer() {
       res.status(400).json(H.serializeError(e as Error));
     }
   });
+
+  app.post(
+    "/api/projects/:root/icons",
+    param("root")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    async (req, res) => {
+      log.info("--> upload projects icon");
+      try {
+        const data = matchedData(req);
+        await API.acceptProjectIcon(data.root, req, res);
+      } catch (e) {
+        log.error("upload projects profile error", H.normalizeErrorOutput(e as Error));
+        res.status(400).json(H.serializeError(e as Error));
+      }
+    }
+  );
 
   app.post("/api/projects/github", body("repoPath").trim(), async (req, res) => {
     // #swagger.tags = ['Projects']

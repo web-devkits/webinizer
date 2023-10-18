@@ -30,6 +30,7 @@ const enum errorCode {
   WEBINIZER_ROOT_EXT = "WEBINIZER_ROOT_EXT", // Project root exists.
   /* File */
   WEBINIZER_FILE_UNSUPPORTED_ENCODING = "WEBINIZER_FILE_UNSUPPORTED_ENCODING", // The file is either binary or uses an unsupported text encoding.
+  WEBINIZER_FILE_SIZE_REACHED_LIMIT = "WEBINIZER_FILE_SIZE_REACHED_LIMIT", // The file's size reached the limit.
   WEBINIZER_FILE_OUTSIDE_ROOT = "WEBINIZER_FILE_OUTSIDE_ROOT", // The file is outside the project root and cannot be accessed.
   WEBINIZER_FILE_READONLY = "WEBINIZER_FILE_READONLY", // The file is readonly.
   WEBINIZER_FILE_UNKNOWN_SYMBOLIC = "WEBINIZER_FILE_UNKNOWN_SYMBOLIC", // The file is symbolic link to an unknown file.

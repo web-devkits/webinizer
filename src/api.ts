@@ -19,6 +19,7 @@ import errorCode from "./error_code";
 import { handleUploadProject, cloneProject, fetchProjectFromRegistry } from "./create_project";
 import { deleteProjectSoftly } from "./delete_project";
 import { getProfilesFromDetection } from "./project_profiles";
+import { handleUploadIcon, constructAllAvailableIcons } from "./icons";
 import { search as searchPackage, IPackageSearchResult } from "./package_manager/search";
 import { Settings } from "./settings";
 import { EnvType, BuildOptionType, IJsonObject, IBuilder } from "webinizer";
@@ -508,6 +509,11 @@ export async function acceptProjectProfile(req: any, res: any) {
   await handleUploadProject(req, res);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function acceptProjectIcon(root: string, req: any, res: any) {
+  await handleUploadIcon(root, req, res);
+}
+
 export async function addProjectByGitClone(
   repoPath: string,
   configPart: H.Dict<unknown>
@@ -545,4 +551,21 @@ export function getSettings(): IJsonObject {
 export async function updateSettings(jsonParts: H.Dict<unknown>): Promise<IJsonObject> {
   await Settings.updateSettings(jsonParts);
   return Settings.toJson();
+}
+
+export function constructIconPath(root: string, name: string) {
+  validateProjectRoot(root);
+  // construct the icon absolute path
+  return `${root}/.webinizer/icons/${name}`;
+}
+
+/**
+ * @param host : the host of the server
+ * @param root : the root of project, it means to get default icons
+ *               if the root is null
+ *
+ */
+export function getAllAvailableIcons(host: string, root?: string) {
+  if (root) validateProjectRoot(root);
+  return constructAllAvailableIcons(host, root);
 }
