@@ -41,8 +41,8 @@ export class ConfigOptionChangeAction implements IAction {
     log.info("partToUpdate is:", this.partToUpdate);
     const buildConfig = this.proj.config.getBuildConfigForTarget(this.proj.config.target);
     const updateOptions: IProjectBuildOptions = {};
-    if (buildConfig.options) {
-      Object.assign(updateOptions, buildConfig.options, this.partToUpdate);
+    if (buildConfig.rawOptions) {
+      Object.assign(updateOptions, buildConfig.rawOptions, this.partToUpdate);
     } else {
       Object.assign(updateOptions, this.partToUpdate);
     }

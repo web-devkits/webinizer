@@ -53,6 +53,8 @@ const enum errorCode {
   /* Actions */
   WEBINIZER_ACTION_FILE_INTERSECT = "WEBINIZER_ACTION_FILE_INTERSECT", // Lines are intersected in file change actions.
   WEBINIZER_ACTION_BUILDSTEP_INTERSECT = "WEBINIZER_ACTION_BUILDSTEP_INTERSECT", // Build step indexes are intersected in build step change actions.
+  /* Config Option */
+  WEBINIZER_CONFIG_OPTION_UNKNOWN = "WEBINIZER_CONFIG_OPTION_UNKNOWN", // Unknown config option type.
   /* Json Factory */
   WEBINIZER_JSONFACTORY_DUP_REG = "WEBINIZER_JSONFACTORY_DUP_REG", // Factory type has already registered.
   WEBINIZER_JSONFACTORY_DESERIALIZE_FAIL = "WEBINIZER_JSONFACTORY_DESERIALIZE_FAIL", // Fail to deserialize from Json object.

@@ -421,7 +421,7 @@ declare module "webinizer" {
     /**
      * The options object defined for build.
      */
-    readonly options: IProjectBuildOptions | null;
+    readonly rawOptions: IProjectBuildOptions | null;
     /**
      * The disabled advisors object. The key should be a advisor type {@link IAdvisor.type}, the value `true`
      * means the corresponding advisor is disabled.
@@ -443,7 +443,7 @@ declare module "webinizer" {
      * @param key The option name.
      * @returns The option value.
      */
-    getOption<T>(key: BuildOptionType): T | undefined;
+    getOption(key: BuildOptionType): boolean | undefined;
     /**
      * Get a disabled advisor value.
      * @param key The advisor name.

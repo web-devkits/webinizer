@@ -51,6 +51,13 @@ const builderPath = path.join(WEBINIZER_DIST_HOME, "builders");
 const advisorPath = path.join(WEBINIZER_DIST_HOME, "advisors");
 const actionPath = path.join(WEBINIZER_DIST_HOME, "actions");
 const adviseRequestPath = path.join(WEBINIZER_DIST_HOME, "advise_requests");
-export const moduleDirectories = [builderPath, advisorPath, actionPath, adviseRequestPath];
+const optionPath = path.join(WEBINIZER_DIST_HOME, "project_caches", "options");
+export const moduleDirectories = [
+  builderPath,
+  advisorPath,
+  actionPath,
+  adviseRequestPath,
+  optionPath,
+];
 
 export const EXTENSION_SRC_HOME = path.join(WEBINIZER_HOME, "extensions");

@@ -39,6 +39,7 @@ import {
   IProjectRepository,
 } from "webinizer";
 import { configSchema, buildTargetConfigSchema } from "../schemas/config_schema";
+import { IConfigOption, optionFromType } from "./options/option";
 
 const log = H.getLogger("project_config");
 
@@ -48,13 +49,14 @@ class ProjectBuildConfig implements IProjectBuildConfig {
   private _data: H.Dict<unknown>;
   private _target: string;
   private _builders: IBuilder[] | null = null; // lazy created builders
+  private _options: Record<BuildOptionType, IConfigOption> | null = null; // lazy created options
   constructor(proj: Project, config: H.Dict<unknown>, target: string) {
     this._proj = proj;
     this._data = config;
     this._target = target;
     if (this._proj.config.useDefaultConfig !== false) {
       // initialize BuildConfig with default settings for webinizer
-      if (!this.options || H.isObjectEmpty(this.options)) {
+      if (!this.rawOptions || H.isObjectEmpty(this.rawOptions)) {
         this.resetOptions();
         if (!this.envs || H.isObjectEmpty(this.envs)) {
           this.resetEnvs();
@@ -161,35 +163,51 @@ class ProjectBuildConfig implements IProjectBuildConfig {
     } as ProjectEnv;
   }
 
-  getOption<T>(key: BuildOptionType): T | undefined {
-    const options = (this.options || {}) as IProjectBuildOptions;
-    return options[key] as T;
+  getOption(key: BuildOptionType): boolean | undefined {
+    const options = (this.rawOptions || {}) as IProjectBuildOptions;
+    return options[key] as boolean;
   }
 
-  setOption<T>(key: BuildOptionType, value: T) {
-    if (!this.options) {
-      this.options = {} as IProjectBuildOptions;
+  setOption(key: BuildOptionType, value: boolean) {
+    if (!this.rawOptions) {
+      this.rawOptions = {} as IProjectBuildOptions;
     }
-    Object.assign(this.options, { [key]: value });
+    Object.assign(this.rawOptions, { [key]: value });
     this.save();
   }
 
-  get options(): IProjectBuildOptions | null {
+  get rawOptions(): IProjectBuildOptions | null {
     return this._data.options as IProjectBuildOptions;
   }
-  set options(v: IProjectBuildOptions | null) {
+  set rawOptions(v: IProjectBuildOptions | null) {
     Object.assign(this._data, { options: v });
     this.save();
+    this._options = null;
   }
 
   resetOptions() {
-    this.options = {
+    this.rawOptions = {
       needMainLoop: true,
       needPthread: false,
       needCppException: false,
       needSimd: true,
       needModularize: true,
     };
+  }
+
+  get options(): Record<BuildOptionType, IConfigOption> | null {
+    if (!this._options) {
+      if (this.rawOptions && Object.keys(this.rawOptions).length) {
+        const optionClassMap = {} as Record<BuildOptionType, IConfigOption>;
+        for (const op of Object.keys(this.rawOptions)) {
+          const opt = op as BuildOptionType;
+          const classType = optionFromType(opt);
+          optionClassMap[opt] = new classType(opt, this.rawOptions);
+        }
+        this._options = optionClassMap;
+      }
+    }
+    return this._options;
   }
 
   getDisabledAdvisorFlag<T>(key: string): T | undefined {
@@ -320,75 +338,25 @@ class ProjectBuildConfig implements IProjectBuildConfig {
   }
 
   updateEnvsFromOptions(updateParts?: BuildOptionType | BuildOptionType[]) {
+    log.info(`... updateEnvsFromOptions`);
     let toUpdate: BuildOptionType[] = [];
     if (updateParts) {
       // update envs from specified options
       toUpdate = Array.isArray(updateParts) ? updateParts : [updateParts];
     } else {
       // update envs from all options
-      if (this.options) toUpdate = Object.keys(this.options) as BuildOptionType[];
+      if (this.rawOptions) toUpdate = Object.keys(this.rawOptions) as BuildOptionType[];
     }
-    if (toUpdate.length) {
-      if (toUpdate.includes("needPthread")) {
-        // pthread option update
-        if (this.getOption("needPthread")) {
-          this.updateEnvs({ option: "-sUSE_PTHREADS", value: "1", type: "replace" } as IArg);
-          this.updateEnv("ldflags", {
-            option: "-sPROXY_TO_PTHREAD",
-            value: "1",
-            type: "replace",
-          } as IArg);
-        } else {
-          this.updateEnvs({
-            option: "-sUSE_PTHREADS",
-            value: null,
-            type: "deleteAll",
-          } as IArg);
-          this.updateEnv("ldflags", {
-            option: "-sPROXY_TO_PTHREAD",
-            value: null,
-            type: "deleteAll",
-          } as IArg);
-        }
-      }
-      if (toUpdate.includes("needCppException")) {
-        // C++ exception update
-        if (this.getOption("needCppException")) {
-          this.updateEnvs({
-            option: "-fwasm-exceptions",
-            value: null,
-            type: "replace",
-          } as IArg);
-        } else {
-          this.updateEnvs({
-            option: "-fwasm-exceptions",
-            value: null,
-            type: "delete",
-          } as IArg);
-        }
-      }
-      if (toUpdate.includes("needSimd")) {
-        // simd option update
-        if (this.getOption("needSimd")) {
-          this.updateEnvs({ option: "-msimd128", value: null, type: "replace" } as IArg);
-        } else {
-          this.updateEnvs({ option: "-msimd128", value: null, type: "delete" } as IArg);
-        }
-      }
-      if (toUpdate.includes("needModularize")) {
-        // modularize option update
-        if (this.getOption("needModularize")) {
-          this.updateEnv("ldflags", {
-            option: "-sMODULARIZE",
-            value: "1",
-            type: "replace",
-          } as IArg);
-        } else {
-          this.updateEnv("ldflags", {
-            option: "-sMODULARIZE",
-            value: null,
-            type: "deleteAll",
-          } as IArg);
+    if (toUpdate.length && this.options) {
+      for (const opt of toUpdate) {
+        if (opt in this.options) {
+          const optClass = this.options[opt];
+          if (optClass.updateToEnvs) {
+            const envUpdateSet = optClass.updateToEnvs();
+            (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
+              this.updateEnv(env, envUpdateSet[env]);
+            });
+          }
         }
       }
     }
@@ -421,149 +389,18 @@ class ProjectBuildConfig implements IProjectBuildConfig {
   }
 
   updateOptionsFromEnvs(currentEnv: EnvType) {
-    const otherEnv = currentEnv === "cflags" ? "ldflags" : "cflags";
     const envFlags = this.getEnv(currentEnv).trim();
-
-    if (currentEnv === "cflags") {
-      // pthread option related update
-      if (envFlags.includes("-sUSE_PTHREADS=1") && !this.getOption("needPthread")) {
-        this.setOption("needPthread", true);
-        this.updateEnv(otherEnv, [
-          {
-            option: "-sUSE_PTHREADS",
-            value: "1",
-            type: "replace",
-          },
-          {
-            option: "-sPROXY_TO_PTHREAD",
-            value: "1",
-            type: "replace",
-          },
-        ]);
-      } else if (
-        (!envFlags.includes("-sUSE_PTHREADS=1") || envFlags.includes("-sUSE_PTHREADS=0")) &&
-        this.getOption("needPthread")
-      ) {
-        this.setOption("needPthread", false);
-        this.updateEnv(currentEnv, {
-          option: "-sUSE_PTHREADS",
-          value: null,
-          type: "deleteAll",
-        });
-        this.updateEnv(otherEnv, [
-          {
-            option: "-sUSE_PTHREADS",
-            value: null,
-            type: "deleteAll",
-          },
-          {
-            option: "-sPROXY_TO_PTHREAD",
-            value: null,
-            type: "deleteAll",
-          },
-        ]);
-      }
-    } else {
-      /* currentEnv === "ldflags" */
-      // pthread option related update
-      if (
-        (envFlags.includes("-sUSE_PTHREADS=1") || envFlags.includes("-sPROXY_TO_PTHREAD=1")) &&
-        !this.getOption("needPthread")
-      ) {
-        this.setOption("needPthread", true);
-        this.updateEnv(currentEnv, [
-          {
-            option: "-sUSE_PTHREADS",
-            value: "1",
-            type: "replace",
-          },
-          {
-            option: "-sPROXY_TO_PTHREAD",
-            value: "1",
-            type: "replace",
-          },
-        ]);
-        this.updateEnv(otherEnv, [
-          {
-            option: "-sUSE_PTHREADS",
-            value: "1",
-            type: "replace",
-          },
-        ]);
-      } else if (
-        (!envFlags.includes("-sUSE_PTHREADS=1") ||
-          !envFlags.includes("-sPROXY_TO_PTHREAD=1") ||
-          envFlags.includes("-sUSE_PTHREADS=0") ||
-          envFlags.includes("-sPROXY_TO_PTHREAD=0")) &&
-        this.getOption("needPthread")
-      ) {
-        this.setOption("needPthread", false);
-        this.updateEnv(currentEnv, [
-          {
-            option: "-sUSE_PTHREADS",
-            value: null,
-            type: "deleteAll",
-          },
-          {
-            option: "-sPROXY_TO_PTHREAD",
-            value: null,
-            type: "deleteAll",
-          },
-        ]);
-        this.updateEnv(otherEnv, {
-          option: "-sUSE_PTHREADS",
-          value: null,
-          type: "deleteAll",
-        });
-      }
-
-      // modularize option related update
-      if (envFlags.includes("-sMODULARIZE=1") && !this.getOption("needModularize")) {
-        this.setOption("needModularize", true);
-      } else if (
-        (!envFlags.includes("-sMODULARIZE=1") || envFlags.includes("-sMODULARIZE=0")) &&
-        this.getOption("needModularize")
-      ) {
-        this.setOption("needModularize", false);
-        this.updateEnv(currentEnv, {
-          option: "-sMODULARIZE",
-          value: null,
-          type: "deleteAll",
-        });
-      }
-    }
-
-    // c++ exception related update
-    if (envFlags.includes("-fwasm-exceptions") && !this.getOption("needCppException")) {
-      this.setOption("needCppException", true);
-      this.updateEnv(otherEnv, {
-        option: "-fwasm-exceptions",
-        value: null,
-        type: "replace",
-      });
-    } else if (!envFlags.includes("-fwasm-exceptions") && this.getOption("needCppException")) {
-      this.setOption("needCppException", false);
-      this.updateEnv(otherEnv, {
-        option: "-fwasm-exceptions",
-        value: null,
-        type: "deleteAll",
-      });
-    }
-
-    // simd option related update
-    if (envFlags.includes("-msimd128") && !this.getOption("needSimd")) {
-      this.setOption("needSimd", true);
-      this.updateEnv(otherEnv, {
-        option: "-msimd128",
-        value: null,
-        type: "replace",
-      });
-    } else if (!envFlags.includes("-msimd128") && this.getOption("needSimd")) {
-      this.setOption("needSimd", false);
-      this.updateEnv(otherEnv, {
-        option: "-msimd128",
-        value: null,
-        type: "deleteAll",
+    if (this.options) {
+      const opts = Object.keys(this.options) as BuildOptionType[];
+      opts.forEach((opt) => {
+        const optClass = this.options ? this.options[opt] : null;
+        if (optClass && optClass.updateFromEnvs) {
+          const envUpdateSet = optClass.updateFromEnvs(currentEnv, envFlags);
+          this.save();
+          (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
+            this.updateEnv(env, envUpdateSet[env]);
+          });
+        }
       });
     }
   }
@@ -718,6 +555,7 @@ class ProjectBuildConfig implements IProjectBuildConfig {
         setUpdateEnvsBit();
       }
       if (jsonKeys.includes("options")) {
+        this._options = null;
         this.updateEnvsFromOptions(updateOptParts);
         setUpdateEnvsBit();
       }
