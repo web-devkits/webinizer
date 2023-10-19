@@ -7,6 +7,13 @@ import errorCode from "./error_code";
 
 const log = H.getLogger("icons");
 
+const ProjectIconFolder = ".webinizer/icons";
+
+export interface Icons {
+  url: string;
+  uploaded: boolean;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleUploadIcon(root: string, req: any, res: any) {
   const multiParty = new multiparty.Form(req);
@@ -25,12 +32,13 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
       // update project config
       const proj = new Project(root);
       // construct the request img resource url
-      const imgURL = `http://${req.headers.host}/projects/${encodeURIComponent(
+      const imgURL = `http://${req.headers.host}/api/projects/${encodeURIComponent(
         root
       )}/icons/${path.basename(targetFilePath)}`;
       await proj.config.updateRawJson({
         img: imgURL,
       });
+
       res.status(200).json({ iconPath: imgURL });
       return;
     } catch (error) {
@@ -77,7 +85,7 @@ function constructUploadedIconsFolder(root: string): string {
     throw new H.WError("Project root path doesn't exist.", errorCode.WEBINIZER_ROOT_NOEXT);
   }
 
-  const iconsStoredFolder = path.resolve(root, ".webinizer/icons");
+  const iconsStoredFolder = path.resolve(root, ProjectIconFolder);
   if (!fs.existsSync(iconsStoredFolder)) {
     fs.mkdirSync(iconsStoredFolder, { recursive: true });
   }
@@ -96,9 +104,9 @@ function constructIconPath(root: string, fileName: string): string {
  *               if the root is null
  *
  */
-export function constructAllAvailableIcons(host: string, root?: string) {
+export function constructAllAvailableIcons(host: string, root?: string): Icons[] {
   // get all default icons
-  let icons: string[];
+  let icons: Icons[];
   const imageExtensions = [".png"];
   const prefix4Default = `http://${host}/assets/icons/default/`;
   const defaultIconFolderPath = path.resolve(__dirname, "assets/icons/default");
@@ -108,18 +116,39 @@ export function constructAllAvailableIcons(host: string, root?: string) {
       const extname = path.extname(file).toLocaleLowerCase();
       return imageExtensions.includes(extname);
     })
-    .map((icon) => prefix4Default + icon);
+    .map((icon) => {
+      return { url: `${prefix4Default + icon}`, uploaded: false };
+    });
   icons = defaultIcons;
 
   // get uploaded icon under root/.webinizer/icons
-  if (root && fs.existsSync(path.resolve(root, ".webinizer/icons"))) {
-    const prefix4ProjIcon = `http://${host}/projects/${encodeURIComponent(root)}/icons/`;
-    const projUploadIconFolderPath = path.resolve(root, ".webinizer/icons");
-    const uploadIcons = fs
-      .readdirSync(projUploadIconFolderPath)
-      .map((icon) => prefix4ProjIcon + icon);
-    icons = icons.concat(uploadIcons);
+  if (root && fs.existsSync(path.resolve(root, ProjectIconFolder))) {
+    // the prefix is the request url of these icons
+    const prefix4ProjIcon = `http://${host}/api/projects/${encodeURIComponent(root)}/icons/`;
+    const projUploadIconFolderPath = path.resolve(root, ProjectIconFolder);
+    const uploadIcons = fs.readdirSync(projUploadIconFolderPath).map((icon) => {
+      return { url: `${prefix4ProjIcon + icon}`, uploaded: true };
+    });
+    icons = uploadIcons.concat(icons);
   }
 
   return icons;
+}
+
+/**
+ *
+ * @param host
+ * @param root
+ * @param iconURL the http request URL of this icon
+ * @returns
+ */
+export function removeIcon(host: string, root: string, iconURL: string): Icons[] {
+  const iconPath = path.resolve(root, ProjectIconFolder, path.basename(iconURL));
+
+  if (!fs.existsSync(iconPath)) {
+    throw new H.WError(`File doesn't exist.`, errorCode.WEBINIZER_FILE_NOEXT);
+  }
+
+  fs.rmSync(iconPath);
+  return constructAllAvailableIcons(host, root);
 }

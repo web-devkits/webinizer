@@ -47,7 +47,7 @@ async function startServer() {
   app.use("/assets/icons", express.static(__dirname + "/assets/icons"));
 
   app.get(
-    "/projects/:root/icons/:name",
+    "/api/projects/:root/icons/:name",
     param("root")
       .trim()
       .customSanitizer((v) => decodeURIComponent(v)),
@@ -61,13 +61,37 @@ async function startServer() {
     }
   );
 
+  app.delete(
+    "/api/projects/:root/icons/:name",
+    param("root")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    param("name")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    (req, res) => {
+      try {
+        const data = matchedData(req);
+        const iconsObjArr = API.removeIconOf1Project(
+          req.headers.host as string,
+          data.root,
+          data.name
+        );
+        res.status(200).json(iconsObjArr);
+      } catch (e) {
+        log.error("delete projects icon error\n", H.normalizeErrorOutput(e as Error));
+        res.status(400).json(H.serializeError(e as Error));
+      }
+    }
+  );
+
   app.get("/api/projects/icons", (req, res) => {
     try {
       const root = decodeURIComponent(String(req.query.root).trim());
-      const iconsArr = API.getAllAvailableIcons(req.headers.host as string, root);
-      res.status(200).json(iconsArr);
+      const iconsObjArr = API.getAllAvailableIcons(req.headers.host as string, root);
+      res.status(200).json(iconsObjArr);
     } catch (e) {
-      log.error("get projects profile error\n", H.normalizeErrorOutput(e as Error));
+      log.error("get projects icons error\n", H.normalizeErrorOutput(e as Error));
       res.status(400).json(H.serializeError(e as Error));
     }
   });
