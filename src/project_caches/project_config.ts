@@ -39,7 +39,13 @@ import {
   IProjectRepository,
 } from "webinizer";
 import { configSchema, buildTargetConfigSchema } from "../schemas/config_schema";
-import { IConfigOption, optionFromType } from "./options/option";
+import {
+  IBuildOption,
+  IBuildConfig,
+  BuildConfigType,
+  optionFromType,
+  configFromType,
+} from "./config_fields";
 
 const log = H.getLogger("project_config");
 
@@ -49,7 +55,8 @@ class ProjectBuildConfig implements IProjectBuildConfig {
   private _data: H.Dict<unknown>;
   private _target: string;
   private _builders: IBuilder[] | null = null; // lazy created builders
-  private _options: Record<BuildOptionType, IConfigOption> | null = null; // lazy created options
+  private _options: Record<BuildOptionType, IBuildOption> | null = null; // lazy created build options
+  private _configFields: Record<BuildConfigType, IBuildConfig> | null = null; // lazy created build configs
   constructor(proj: Project, config: H.Dict<unknown>, target: string) {
     this._proj = proj;
     this._data = config;
@@ -130,6 +137,27 @@ class ProjectBuildConfig implements IProjectBuildConfig {
     this.save();
   }
 
+  get configFields(): Record<BuildConfigType, IBuildConfig> | null {
+    if (!this._configFields) {
+      const configClassMap = {} as Record<BuildConfigType, IBuildConfig>;
+      const createConfigClass = (configType: BuildConfigType) => {
+        configClassMap[configType] = new (configFromType(configType))(configType, this._data);
+      };
+      const jsonKeys = Object.keys(this._data);
+      if (jsonKeys.includes("exportedFuncs")) {
+        createConfigClass("exportedFuncs");
+      }
+      if (jsonKeys.includes("exportedRuntimeMethods")) {
+        createConfigClass("exportedRuntimeMethods");
+      }
+      if (jsonKeys.includes("preloadFiles")) {
+        createConfigClass("preloadFiles");
+      }
+      this._configFields = configClassMap;
+    }
+    return this._configFields;
+  }
+
   getEnv(key: EnvType): string {
     const envs = (this.envs || {}) as ProjectEnv;
     return envs[key] as string;
@@ -195,10 +223,10 @@ class ProjectBuildConfig implements IProjectBuildConfig {
     };
   }
 
-  get options(): Record<BuildOptionType, IConfigOption> | null {
+  get options(): Record<BuildOptionType, IBuildOption> | null {
     if (!this._options) {
       if (this.rawOptions && Object.keys(this.rawOptions).length) {
-        const optionClassMap = {} as Record<BuildOptionType, IConfigOption>;
+        const optionClassMap = {} as Record<BuildOptionType, IBuildOption>;
         for (const op of Object.keys(this.rawOptions)) {
           const opt = op as BuildOptionType;
           const classType = optionFromType(opt);
@@ -261,84 +289,20 @@ class ProjectBuildConfig implements IProjectBuildConfig {
     this.convertPkgConfigToMeta();
   }
 
-  updateEnvsFromPreloadFiles() {
-    if (this.preloadFiles && this.preloadFiles.length) {
-      // remove all previous preload files ("deleteAll") and then add the new ones
-      this.updateEnv("ldflags", [
-        { option: "--preload-file", value: null, type: "deleteAll" },
-        ...this.preloadFiles.map((f) => {
-          // preload file is mapped to root of virtual FS (@/) if mapping directory is not defined
-          const opt = f.includes("@/") ? `--preload-file ${f}` : `--preload-file ${f}@/`;
-          return { option: opt, value: null, type: "replace" };
-        }),
-      ] as IArg[]);
-    } else {
-      // if preloadFiles is [], remove all --preload-file args
-      this.updateEnv("ldflags", {
-        option: "--preload-file",
-        value: null,
-        type: "deleteAll",
-      } as IArg);
-    }
-  }
-
-  updateEnvsFromExportedFuncs() {
-    if (this.exportedFuncs && this.exportedFuncs.trim()) {
-      const uniqFns = [
-        ...new Set(
-          this.exportedFuncs
-            .split(",")
-            .map((f) => f.trim())
-            .filter((f) => f)
-        ),
-      ];
-      const fns = uniqFns.map((f) => "_" + f);
-      this.exportedFuncs = uniqFns.join(",");
-
-      this.updateEnv("ldflags", [
-        {
-          option: "-sEXPORTED_FUNCTIONS",
-          value: `${fns.join(",")}`,
-          type: "replace",
-        } as IArg,
-      ]);
-    } else {
-      // if exportedFuncs is "", remove -sEXPORTED_FUNCTIONS arg
-      this.updateEnv("ldflags", [
-        { option: "-sEXPORTED_FUNCTIONS", value: null, type: "deleteAll" } as IArg,
-      ]);
-    }
-  }
-
-  updateEnvsFromExportedRuntimeMethods() {
-    if (this.exportedRuntimeMethods && this.exportedRuntimeMethods.trim()) {
-      const uniqFns = [
-        ...new Set(
-          this.exportedRuntimeMethods
-            .split(",")
-            .map((f) => f.trim())
-            .filter((f) => f)
-        ),
-      ];
-      this.exportedRuntimeMethods = uniqFns.join(",");
-
-      this.updateEnv("ldflags", [
-        {
-          option: "-sEXPORTED_RUNTIME_METHODS",
-          value: `${this.exportedRuntimeMethods}`,
-          type: "replace",
-        } as IArg,
-      ]);
-    } else {
-      // if exportedRuntimeMethods is "", remove -sEXPORTED_RUNTIME_METHODS arg
-      this.updateEnv("ldflags", [
-        { option: "-sEXPORTED_RUNTIME_METHODS", value: null, type: "deleteAll" } as IArg,
-      ]);
+  updateEnvsFromConfigs(configType: BuildConfigType) {
+    if (this.configFields && Object.keys(this.configFields).includes(configType)) {
+      const configClass = this.configFields[configType];
+      if (configClass.updateToEnvs) {
+        const envUpdateSet = configClass.updateToEnvs();
+        this.save();
+        (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
+          this.updateEnv(env, envUpdateSet[env]);
+        });
+      }
     }
   }
 
   updateEnvsFromOptions(updateParts?: BuildOptionType | BuildOptionType[]) {
-    log.info(`... updateEnvsFromOptions`);
     let toUpdate: BuildOptionType[] = [];
     if (updateParts) {
       // update envs from specified options
@@ -407,64 +371,18 @@ class ProjectBuildConfig implements IProjectBuildConfig {
 
   updateConfigsFromEnvs(currentEnv: EnvType) {
     if (currentEnv === "ldflags") {
-      const localFiles = [] as string[];
-      let setExportedFuncs = false;
-      let setExportedRuntimeMethods = false;
-      if (this.getEnv("ldflags").trim()) {
-        const args = shlex.split(this.getEnv("ldflags").trim());
-        for (let i = 0; i < args.length; i++) {
-          const a = args[i];
-          if (a.includes("-sEXPORTED_FUNCTIONS") && !setExportedFuncs) {
-            const f = a.split("=").pop()?.trim();
-            if (f) {
-              const fns = [
-                ...new Set(
-                  f
-                    .split(",")
-                    .map((fn) => fn.trim())
-                    .filter((fn) => fn)
-                ),
-              ];
-              args[i] = `-sEXPORTED_FUNCTIONS=${fns.join(",")}`;
-              // remove the first "_"
-              this.exportedFuncs = fns.map((fn) => fn.replace("_", "")).join(",");
-              setExportedFuncs = true;
-            }
-            continue;
+      const envFlags = this.getEnv("ldflags").trim();
+      if (this.configFields) {
+        const fields = Object.keys(this.configFields) as BuildConfigType[];
+        fields.forEach((field) => {
+          const configClass = this.configFields ? this.configFields[field] : null;
+          if (configClass && configClass.updateFromEnvs) {
+            const updatedEnvsFlags = configClass.updateFromEnvs(currentEnv, envFlags);
+            this.save();
+            this.setEnv("ldflags", updatedEnvsFlags);
           }
-          if (a.includes("-sEXPORTED_RUNTIME_METHODS") && !setExportedRuntimeMethods) {
-            const f = a.split("=").pop()?.trim();
-            if (f) {
-              const fns = [
-                ...new Set(
-                  f
-                    .split(",")
-                    .map((fn) => fn.trim())
-                    .filter((fn) => fn)
-                ),
-              ];
-              args[i] = `-sEXPORTED_RUNTIME_METHODS=${fns.join(",")}`;
-              this.exportedRuntimeMethods = fns.join(",");
-              setExportedRuntimeMethods = true;
-            }
-            continue;
-          }
-          if (a.includes("--preload-file")) {
-            // store local file path and mapped path in virtual FS together
-            const f = a.split(" ").pop()?.trim();
-            if (f && !localFiles.includes(f)) {
-              localFiles.push(f);
-            } else {
-              args[i] = "";
-            }
-            continue;
-          }
-        }
-        this.setEnv("ldflags", shlex.join(args));
+        });
       }
-      if (!setExportedFuncs) this.exportedFuncs = "";
-      if (!setExportedRuntimeMethods) this.exportedRuntimeMethods = "";
-      this.preloadFiles = localFiles;
     }
   }
 
@@ -531,6 +449,7 @@ class ProjectBuildConfig implements IProjectBuildConfig {
     log.info("updateBuildConfig", jsonParts, updateEnvParts, updateOptParts);
     if (refresh) {
       const jsonKeys = Object.keys(jsonParts);
+      log.info(`jsonKeys are ${jsonKeys.join(", ")}`);
       if (jsonKeys.includes("builders")) {
         this._builders = null;
         this.convertBuildersToMeta();
@@ -543,15 +462,15 @@ class ProjectBuildConfig implements IProjectBuildConfig {
         if (!updateEnvs) updateEnvs = true;
       };
       if (jsonKeys.includes("preloadFiles")) {
-        this.updateEnvsFromPreloadFiles();
+        this.updateEnvsFromConfigs("preloadFiles");
         setUpdateEnvsBit();
       }
       if (jsonKeys.includes("exportedFuncs")) {
-        this.updateEnvsFromExportedFuncs();
+        this.updateEnvsFromConfigs("exportedFuncs");
         setUpdateEnvsBit();
       }
       if (jsonKeys.includes("exportedRuntimeMethods")) {
-        this.updateEnvsFromExportedRuntimeMethods();
+        this.updateEnvsFromConfigs("exportedRuntimeMethods");
         setUpdateEnvsBit();
       }
       if (jsonKeys.includes("options")) {

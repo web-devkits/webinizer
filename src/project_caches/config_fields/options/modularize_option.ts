@@ -1,7 +1,8 @@
-import { BaseConfigOption, EnvUpdateSet, registerOption } from "./option";
+import { BaseBuildOption, registerOption } from "../option";
+import { EnvUpdateSet } from "..";
 import { IArg, BuildOptionType, IProjectBuildOptions, EnvType } from "webinizer";
 
-class ModularizeOption extends BaseConfigOption {
+class ModularizeOption extends BaseBuildOption {
   static __type__: BuildOptionType = "needModularize";
   constructor(name: BuildOptionType, data: IProjectBuildOptions) {
     if (name === ModularizeOption.__type__) super(name, data);

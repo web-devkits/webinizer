@@ -1,7 +1,8 @@
-import { BaseConfigOption, EnvUpdateSet, registerOption } from "./option";
+import { BaseBuildOption, registerOption } from "../option";
+import { EnvUpdateSet } from "..";
 import { IArg, BuildOptionType, IProjectBuildOptions, EnvType } from "webinizer";
 
-class SimdOption extends BaseConfigOption {
+class SimdOption extends BaseBuildOption {
   static __type__: BuildOptionType = "needSimd";
 
   constructor(name: BuildOptionType, data: IProjectBuildOptions) {

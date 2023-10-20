@@ -1,20 +1,21 @@
 import chalk from "chalk";
 import * as H from "../../helper";
 import errorCode from "../../error_code";
-import { BuildOptionType, EnvType, IArg, IProjectBuildOptions } from "webinizer";
+import { BuildOptionType, IProjectBuildOptions } from "webinizer";
+import { IBuildOption } from ".";
 
 const log = H.getLogger("option");
 
-export interface IConfigOption {
-  name: BuildOptionType;
-  value: boolean;
-  updateFromEnvs?(currentEnv: EnvType, envFlags: string): EnvUpdateSet;
-  updateToEnvs?(): EnvUpdateSet;
-}
+// export interface IBuildOption {
+//   name: BuildOptionType;
+//   value: boolean;
+//   updateFromEnvs?(currentEnv: EnvType, envFlags: string): EnvUpdateSet;
+//   updateToEnvs?(): EnvUpdateSet;
+// }
 
-export type EnvUpdateSet = Record<EnvType, IArg[]>;
+// export type EnvUpdateSet = Record<EnvType, IArg[]>;
 
-export class BaseConfigOption implements IConfigOption {
+export class BaseBuildOption implements IBuildOption {
   name: BuildOptionType;
   private _data: IProjectBuildOptions;
   constructor(name: BuildOptionType, data: IProjectBuildOptions) {
@@ -35,19 +36,19 @@ export class BaseConfigOption implements IConfigOption {
   }
 }
 
-const ALL_OPTIONS_MAP = new Map<BuildOptionType, typeof BaseConfigOption>();
+const ALL_OPTIONS_MAP = new Map<BuildOptionType, typeof BaseBuildOption>();
 
-export function registerOption(type: BuildOptionType, optionClass: typeof BaseConfigOption) {
+export function registerOption(type: BuildOptionType, optionClass: typeof BaseBuildOption) {
   log.info(`* ${chalk.yellowBright(`<< Option >>`)} - registered ${chalk.cyanBright(type)}`);
   ALL_OPTIONS_MAP.set(type, optionClass);
 }
 
-export function optionFromType(type: BuildOptionType): typeof BaseConfigOption {
+export function optionFromType(type: BuildOptionType): typeof BaseBuildOption {
   const optionClass = ALL_OPTIONS_MAP.get(type);
   if (!optionClass)
     throw new H.WError(
       `Unknown config option type ${type}`,
-      errorCode.WEBINIZER_CONFIG_OPTION_UNKNOWN
+      errorCode.WEBINIZER_BUILD_OPTION_UNKNOWN
     );
   return optionClass;
 }

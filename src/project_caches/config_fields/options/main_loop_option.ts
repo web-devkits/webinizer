@@ -1,7 +1,7 @@
-import { BaseConfigOption, registerOption } from "./option";
+import { BaseBuildOption, registerOption } from "../option";
 import { BuildOptionType, IProjectBuildOptions } from "webinizer";
 
-class MainLoopOption extends BaseConfigOption {
+class MainLoopOption extends BaseBuildOption {
   static __type__: BuildOptionType = "needMainLoop";
   constructor(name: BuildOptionType, data: IProjectBuildOptions) {
     if (name === MainLoopOption.__type__) super(name, data);

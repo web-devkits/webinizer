@@ -1,7 +1,8 @@
-import { BaseConfigOption, EnvUpdateSet, registerOption } from "./option";
+import { BaseBuildOption, registerOption } from "../option";
+import { EnvUpdateSet } from "..";
 import { IArg, BuildOptionType, IProjectBuildOptions, EnvType } from "webinizer";
 
-class CppExceptionOption extends BaseConfigOption {
+class CppExceptionOption extends BaseBuildOption {
   static __type__: BuildOptionType = "needCppException";
   constructor(name: BuildOptionType, data: IProjectBuildOptions) {
     if (name === CppExceptionOption.__type__) super(name, data);

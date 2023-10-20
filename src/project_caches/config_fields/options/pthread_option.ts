@@ -1,7 +1,8 @@
-import { BaseConfigOption, EnvUpdateSet, registerOption } from "./option";
+import { BaseBuildOption, registerOption } from "../option";
+import { EnvUpdateSet } from "..";
 import { IArg, BuildOptionType, IProjectBuildOptions, EnvType } from "webinizer";
 
-class PThreadOption extends BaseConfigOption {
+class PThreadOption extends BaseBuildOption {
   static __type__: BuildOptionType = "needPthread";
 
   constructor(name: BuildOptionType, data: IProjectBuildOptions) {
