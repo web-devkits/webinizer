@@ -61,6 +61,7 @@ class ConfigureBuilder implements IBuilder {
   static __type__ = "ConfigureBuilder";
   type = ConfigureBuilder.__type__;
   desc = "configure";
+  command = "emconfigure ./configure";
   args: string[];
   id: number;
   private _proj: IProject;
@@ -78,6 +79,7 @@ class ConfigureBuilder implements IBuilder {
       __type__: this.type,
       id: this.id,
       desc: this.desc,
+      command: this.command,
       args: shlex.join(this.args),
       rootBuildFilePath: this._rootBuildFilePath,
     };
@@ -167,7 +169,7 @@ class ConfigureBuilder implements IBuilder {
     // run cmd
     const cmd =
       envCmds +
-      "emconfigure ./configure " +
+      `${this.command} ` +
       (this.args
         ? shlex
             .join([...new Set(this.args.map((a) => this._proj.evalTemplateLiterals(a)))])

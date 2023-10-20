@@ -47,6 +47,7 @@ class BuildStepValidateAdvisor implements IAdvisor {
           __type__: "MakeBuilder",
           id: 0 /* set to default 0 as this will be re-set in next build*/,
           desc: "Make",
+          command: "emmake make",
           args: "clean",
           rootBuildFilePath: builder.rootBuildFilePath as string,
         };

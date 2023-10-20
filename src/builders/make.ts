@@ -60,6 +60,7 @@ class MakeBuilder implements IBuilder {
   static __type__ = "MakeBuilder";
   type = MakeBuilder.__type__;
   desc = "make";
+  command = "emmake make";
   id: number;
   private _proj: IProject;
   private _rootBuildFilePath: string; // file dirname (w/o file name)
@@ -75,6 +76,7 @@ class MakeBuilder implements IBuilder {
       __type__: MakeBuilder.__type__,
       id: this.id,
       desc: this.desc,
+      command: this.command,
       args: shlex.join(this.args),
       rootBuildFilePath: this._rootBuildFilePath,
     };
@@ -143,7 +145,7 @@ class MakeBuilder implements IBuilder {
 
     const cmd =
       envCmds +
-      "emmake make -j4 " +
+      `${this.command} -j4 ` +
       (this.args
         ? shlex
             .join([...new Set(this.args.map((a) => this._proj.evalTemplateLiterals(a)))])

@@ -47,6 +47,7 @@ class NativeBuilder implements IBuilder {
   static __type__ = "NativeBuilder";
   type = NativeBuilder.__type__;
   desc = "Run native commands without emscripten related configs";
+  command = ""; // no pre-defined command for native builder as it may vary
   args: string[];
   id: number;
   private _proj: IProject;
@@ -63,6 +64,7 @@ class NativeBuilder implements IBuilder {
       __type__: this.type,
       id: this.id,
       desc: this.desc,
+      command: this.command,
       args: this.args[0],
       rootBuildFilePath: this._rootBuildFilePath,
     };

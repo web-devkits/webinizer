@@ -13,7 +13,6 @@ import { buildDirTree, IDtreeJson } from "./dtree";
 import { Project, ProjectConfig, ProjectResult } from "./project";
 import { IProjectProfile } from "./project_profiles";
 import { recipeArrayFromJson, type Recipe } from "./recipe";
-import { ALL_BUILDER_FACTORIES } from "./builder";
 import { buildStatus, type StatusType } from "./status";
 import errorCode from "./error_code";
 import { handleUploadProject, cloneProject, fetchProjectFromRegistry } from "./create_project";
@@ -239,13 +238,7 @@ export function recommendBuildersToUse(root: string): IBuilder[] {
 export function getAllBuilders(root: string): IBuilder[] {
   validateProjectRoot(root);
   const proj = new Project(root);
-  const builders: IBuilder[] = [];
-
-  for (const bf of ALL_BUILDER_FACTORIES.factoriesMap().values()) {
-    builders.push(bf.createDefault(proj));
-  }
-
-  return builders;
+  return proj.getAllBuilders();
 }
 
 export async function disableAdvisorToUse(root: string, advisor: string): Promise<ProjectConfig> {

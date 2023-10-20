@@ -569,6 +569,10 @@ declare module "webinizer" {
      */
     desc: string;
     /**
+     * The pre-defined command of the builder, used for build.
+     */
+    command: string;
+    /**
      * The overall arguments string of the builder.
      */
     args: string;
@@ -590,6 +594,10 @@ declare module "webinizer" {
      * The description of the builder.
      */
     desc: string;
+    /**
+     * The pre-defined command of the builder, used for build.
+     */
+    command: string;
     /**
      * The arguments array of the builder. Each element in the array is a argument.
      */

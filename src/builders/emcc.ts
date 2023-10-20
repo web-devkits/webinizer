@@ -48,6 +48,7 @@ class EmccBuilder implements IBuilder {
   static __type__ = "EmccBuilder";
   type = EmccBuilder.__type__;
   desc = "emcc";
+  command = "emcc";
   args: string[];
   id: number;
   private _proj: IProject;
@@ -64,6 +65,7 @@ class EmccBuilder implements IBuilder {
       __type__: this.type,
       id: this.id,
       desc: this.desc,
+      command: this.command,
       args: shlex.join(this.args),
       rootBuildFilePath: this._rootBuildFilePath,
     };
@@ -94,7 +96,7 @@ class EmccBuilder implements IBuilder {
       ]),
     ];
 
-    const cmd = "emcc " + shlex.join(argsUnion).replace(/'/g, "");
+    const cmd = `${this.command} ` + shlex.join(argsUnion).replace(/'/g, "");
     log.info(`... running emcc command: ${cmd}`, dumpLog);
     const results = await H.runCommand(
       cmd,
