@@ -143,7 +143,9 @@ export function constructAllAvailableIcons(host: string, root?: string): Icons[]
  * @returns
  */
 export function removeIcon(host: string, root: string, iconURL: string): Icons[] {
-  const iconPath = path.resolve(root, ProjectIconFolder, path.basename(iconURL));
+  // resolve the iconURL to avoid that the `..` is the last part
+  const absIconURL = path.resolve(iconURL);
+  const iconPath = path.resolve(root, ProjectIconFolder, path.basename(absIconURL));
 
   if (!fs.existsSync(iconPath)) {
     throw new H.WError(`File doesn't exist.`, errorCode.WEBINIZER_FILE_NOEXT);
