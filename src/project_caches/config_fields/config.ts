@@ -1,20 +1,15 @@
+/*-------------------------------------------------------------------------------------------------
+ *  Copyright (C) 2023 Intel Corporation. All rights reserved.
+ *  Licensed under the Apache License 2.0. See LICENSE in the project root for license information.
+ *  SPDX-License-Identifier: Apache-2.0
+ *-----------------------------------------------------------------------------------------------*/
+
 import chalk from "chalk";
 import * as H from "../../helper";
 import errorCode from "../../error_code";
-// import { EnvUpdateSet } from "./option";
-// import { EnvType } from "webinizer";
 import { BuildConfigType, IBuildConfig } from ".";
 
 const log = H.getLogger("config");
-
-// export type BuildConfigType = "preloadFiles" | "exportedFuncs" | "exportedRuntimeMethods";
-
-// export interface IBuildConfig {
-//   name: BuildConfigType;
-//   value: string | string[];
-//   updateFromEnvs?(currentEnv: EnvType, envFlags: string): string;
-//   updateToEnvs?(): EnvUpdateSet;
-// }
 
 export class BaseBuildConfig implements IBuildConfig {
   name: BuildConfigType;
