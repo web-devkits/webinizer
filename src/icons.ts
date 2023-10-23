@@ -16,8 +16,8 @@ const log = H.getLogger("icons");
 const ProjectIconFolder = ".webinizer/icons";
 
 export interface Icons {
-  url: string;
-  uploaded: boolean;
+  name: string;
+  isUploaded: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,15 +37,12 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
 
       // update project config
       const proj = new Project(root);
-      // construct the request img resource url
-      const imgURL = `http://${req.headers.host}/api/projects/${encodeURIComponent(
-        root
-      )}/icons/${path.basename(targetFilePath)}`;
+      const imgName = path.basename(targetFilePath);
       await proj.config.updateRawJson({
-        img: imgURL,
+        img: { name: imgName, isUploaded: true },
       });
 
-      res.status(200).json({ iconPath: imgURL });
+      res.status(200).json({ iconName: imgName });
       return;
     } catch (error) {
       log.error("upload project icon error\n", H.normalizeErrorOutput(error as Error));
@@ -114,7 +111,6 @@ export function constructAllAvailableIcons(host: string, root?: string): Icons[]
   // get all default icons
   let icons: Icons[];
   const imageExtensions = [".png"];
-  const prefix4Default = `http://${host}/assets/icons/default/`;
   const defaultIconFolderPath = path.resolve(__dirname, "assets/icons/default");
   const defaultIcons = fs
     .readdirSync(defaultIconFolderPath)
@@ -123,17 +119,15 @@ export function constructAllAvailableIcons(host: string, root?: string): Icons[]
       return imageExtensions.includes(extname);
     })
     .map((icon) => {
-      return { url: `${prefix4Default + icon}`, uploaded: false };
+      return { name: icon, isUploaded: false };
     });
   icons = defaultIcons;
 
   // get uploaded icon under root/.webinizer/icons
   if (root && fs.existsSync(path.resolve(root, ProjectIconFolder))) {
-    // the prefix is the request url of these icons
-    const prefix4ProjIcon = `http://${host}/api/projects/${encodeURIComponent(root)}/icons/`;
     const projUploadIconFolderPath = path.resolve(root, ProjectIconFolder);
     const uploadIcons = fs.readdirSync(projUploadIconFolderPath).map((icon) => {
-      return { url: `${prefix4ProjIcon + icon}`, uploaded: true };
+      return { name: icon, isUploaded: true };
     });
     icons = uploadIcons.concat(icons);
   }

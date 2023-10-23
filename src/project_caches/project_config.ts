@@ -37,6 +37,7 @@ import {
   IBuilder,
   IProjectPerson,
   IProjectRepository,
+  IProjectIcon,
 } from "webinizer";
 import { configSchema, buildTargetConfigSchema } from "../schemas/config_schema";
 
@@ -966,12 +967,13 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
   }
 
   // img: path to project image file
-  get img(): string | undefined {
-    return this.data.img as string;
+  get img(): IProjectIcon | undefined {
+    return this.data.img as IProjectIcon;
   }
 
-  set img(v: string | undefined) {
-    this.data = { img: v };
+  set img(v: IProjectIcon | undefined) {
+    Object.assign(this.data, { img: v });
+    this.save();
   }
 
   // category: project category
