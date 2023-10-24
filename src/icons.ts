@@ -19,7 +19,7 @@ const projectIconFolder = ".webinizer/icons";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleUploadIcon(root: string, req: any, res: any) {
   const multiParty = new multiparty.Form(req);
-  multiParty.parse(req, async (err, fields, files) => {
+  multiParty.parse(req, async (err, _, files) => {
     try {
       if (err) throw err;
       const fileName = path.parse(String(files.file[0].originalFilename)).base;
