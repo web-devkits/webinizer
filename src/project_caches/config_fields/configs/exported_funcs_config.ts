@@ -56,11 +56,9 @@ class ExportedFuncsConfig extends BaseBuildConfig {
   }
 
   updateToEnvs(): EnvUpdateSet {
-    console.log(`updateToEnvs from exportedFuncs`);
     const ldflagsToUpdate: IArg[] = [];
     const val = this.value as string;
     if (val && val.trim()) {
-      console.log(`if - ${val}`);
       const uniqFns = [
         ...new Set(
           val
@@ -77,7 +75,6 @@ class ExportedFuncsConfig extends BaseBuildConfig {
         type: "replace",
       });
     } else {
-      console.log(`else - ${val}`);
       // if exportedFuncs is "", remove -sEXPORTED_FUNCTIONS arg
       ldflagsToUpdate.push({
         option: "-sEXPORTED_FUNCTIONS",
