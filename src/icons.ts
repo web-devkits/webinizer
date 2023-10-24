@@ -22,7 +22,7 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
   multiParty.parse(req, async (err, fields, files) => {
     try {
       if (err) throw err;
-      const fileName = path.parse(String(files.file[0].originalFilename)).name;
+      const fileName = path.parse(String(files.file[0].originalFilename)).base;
       const fileSize = Number(files.file[0].size);
 
       checkUploadIconType(files.file[0].path);
