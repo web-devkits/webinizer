@@ -19,10 +19,10 @@ import errorCode from "./error_code";
 import { handleUploadProject, cloneProject, fetchProjectFromRegistry } from "./create_project";
 import { deleteProjectSoftly } from "./delete_project";
 import { getProfilesFromDetection } from "./project_profiles";
-import { handleUploadIcon, constructAllAvailableIcons, removeIcon, Icons } from "./icons";
+import { handleUploadIcon, constructAllAvailableIcons, removeIcon } from "./icons";
 import { search as searchPackage, IPackageSearchResult } from "./package_manager/search";
 import { Settings } from "./settings";
-import { EnvType, BuildOptionType, IJsonObject, IBuilder } from "webinizer";
+import { EnvType, BuildOptionType, IJsonObject, IBuilder, IProjectIcon } from "webinizer";
 
 const log = H.getLogger("api");
 
@@ -565,12 +565,12 @@ export function constructIconPath(root: string, name: string) {
  *               if the root is null
  *
  */
-export function getAllAvailableIcons(host: string, root?: string): Icons[] {
+export function getAllAvailableIcons(root?: string): IProjectIcon[] {
   if (root) validateProjectRoot(root);
-  return constructAllAvailableIcons(host, root);
+  return constructAllAvailableIcons(root);
 }
 
-export function removeIconOf1Project(host: string, root: string, iconURL: string) {
+export function removeIconOf1Project(root: string, iconURL: string) {
   validateProjectRoot(root);
-  return removeIcon(host, root, iconURL);
+  return removeIcon(root, iconURL);
 }

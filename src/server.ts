@@ -136,11 +136,7 @@ async function startServer() {
           #swagger.responses[400]
         */
         const data = matchedData(req);
-        const iconsObjArr = API.removeIconOf1Project(
-          req.headers.host as string,
-          data.root,
-          data.name
-        );
+        const iconsObjArr = API.removeIconOf1Project(data.root, data.name);
         res.status(200).json(iconsObjArr);
       } catch (e) {
         log.error("delete projects icon error\n", H.normalizeErrorOutput(e as Error));
@@ -179,7 +175,7 @@ async function startServer() {
         #swagger.responses[400]
       */
       const root = decodeURIComponent(String(req.query.root).trim());
-      const iconsObjArr = API.getAllAvailableIcons(req.headers.host as string, root);
+      const iconsObjArr = API.getAllAvailableIcons(root);
       res.status(200).json(iconsObjArr);
     } catch (e) {
       log.error("get projects icons error\n", H.normalizeErrorOutput(e as Error));

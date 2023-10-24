@@ -10,15 +10,11 @@ import path from "path";
 import { Project } from "./project";
 import multiparty from "multiparty";
 import errorCode from "./error_code";
+import { IProjectIcon } from "webinizer";
 
 const log = H.getLogger("icons");
 
-const ProjectIconFolder = ".webinizer/icons";
-
-export interface Icons {
-  name: string;
-  isUploaded: boolean;
-}
+const projectIconFolder = ".webinizer/icons";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleUploadIcon(root: string, req: any, res: any) {
@@ -30,7 +26,7 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
       const fileSize = Number(files.file[0].size);
 
       checkUploadIconType(files.file[0].path);
-      checkIfFileSize(fileSize);
+      checkFileSize(fileSize);
 
       const targetFilePath = constructIconPath(root, fileName);
       fs.renameSync(String(files.file[0].path), targetFilePath);
@@ -52,7 +48,7 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
   });
 }
 
-async function checkUploadIconType(path: string) {
+function checkUploadIconType(path: string): boolean {
   const imageSignatures = [
     "ffd8ffe0", // JPEG
     "89504e47", //PNG
@@ -67,9 +63,11 @@ async function checkUploadIconType(path: string) {
       `Uploaded file's type is not allowed.`,
       errorCode.WEBINIZER_FILE_UNSUPPORTED_ENCODING
     );
+
+  return true;
 }
 
-function checkIfFileSize(fileSize: number) {
+function checkFileSize(fileSize: number): boolean {
   /* the size maximum is 1 MB */
   if (fileSize > 1024 * 1024) {
     throw new H.WError(
@@ -77,6 +75,8 @@ function checkIfFileSize(fileSize: number) {
       errorCode.WEBINIZER_FILE_SIZE_REACHED_LIMIT
     );
   }
+
+  return true;
 }
 
 function constructUploadedIconsFolder(root: string): string {
@@ -88,7 +88,7 @@ function constructUploadedIconsFolder(root: string): string {
     throw new H.WError("Project root path doesn't exist.", errorCode.WEBINIZER_ROOT_NOEXT);
   }
 
-  const iconsStoredFolder = path.resolve(root, ProjectIconFolder);
+  const iconsStoredFolder = path.resolve(root, projectIconFolder);
   if (!fs.existsSync(iconsStoredFolder)) {
     fs.mkdirSync(iconsStoredFolder, { recursive: true });
   }
@@ -107,16 +107,19 @@ function constructIconPath(root: string, fileName: string): string {
  *               if the root is null
  *
  */
-export function constructAllAvailableIcons(host: string, root?: string): Icons[] {
+export function constructAllAvailableIcons(root?: string): IProjectIcon[] {
   // get all default icons
-  let icons: Icons[];
-  const imageExtensions = [".png"];
+  let icons: IProjectIcon[];
   const defaultIconFolderPath = path.resolve(__dirname, "assets/icons/default");
   const defaultIcons = fs
     .readdirSync(defaultIconFolderPath)
     .filter((file) => {
-      const extname = path.extname(file).toLocaleLowerCase();
-      return imageExtensions.includes(extname);
+      // only images files can be kept
+      try {
+        return checkUploadIconType(path.resolve(defaultIconFolderPath, file));
+      } catch (err) {
+        return false;
+      }
     })
     .map((icon) => {
       return { name: icon, isUploaded: false };
@@ -124,11 +127,20 @@ export function constructAllAvailableIcons(host: string, root?: string): Icons[]
   icons = defaultIcons;
 
   // get uploaded icon under root/.webinizer/icons
-  if (root && fs.existsSync(path.resolve(root, ProjectIconFolder))) {
-    const projUploadIconFolderPath = path.resolve(root, ProjectIconFolder);
-    const uploadIcons = fs.readdirSync(projUploadIconFolderPath).map((icon) => {
-      return { name: icon, isUploaded: true };
-    });
+  if (root && fs.existsSync(path.resolve(root, projectIconFolder))) {
+    const projUploadIconFolderPath = path.resolve(root, projectIconFolder);
+    const uploadIcons = fs
+      .readdirSync(projUploadIconFolderPath)
+      .filter((file) => {
+        try {
+          return checkUploadIconType(path.resolve(projUploadIconFolderPath, file));
+        } catch (err) {
+          return false;
+        }
+      })
+      .map((icon) => {
+        return { name: icon, isUploaded: true };
+      });
     icons = uploadIcons.concat(icons);
   }
 
@@ -142,15 +154,15 @@ export function constructAllAvailableIcons(host: string, root?: string): Icons[]
  * @param iconURL the http request URL of this icon
  * @returns
  */
-export function removeIcon(host: string, root: string, iconURL: string): Icons[] {
+export function removeIcon(root: string, iconURL: string): IProjectIcon[] {
   // resolve the iconURL to avoid that the `..` is the last part
   const absIconURL = path.resolve(iconURL);
-  const iconPath = path.resolve(root, ProjectIconFolder, path.basename(absIconURL));
+  const iconPath = path.resolve(root, projectIconFolder, path.basename(absIconURL));
 
   if (!fs.existsSync(iconPath)) {
     throw new H.WError(`File doesn't exist.`, errorCode.WEBINIZER_FILE_NOEXT);
   }
 
   fs.rmSync(iconPath);
-  return constructAllAvailableIcons(host, root);
+  return constructAllAvailableIcons(root);
 }
