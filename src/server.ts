@@ -31,14 +31,157 @@ async function startServer() {
     })
   );
   app.use(cors());
+
   app.use(
     helmet({
       strictTransportSecurity: {
         maxAge: 31536000,
         includeSubDomains: true,
       },
+      crossOriginResourcePolicy: {
+        policy: "cross-origin",
+      },
     })
   );
+
+  app.use("/assets/icons", express.static(__dirname + "/assets/icons"));
+
+  app.get(
+    "/api/projects/:root/icons/:name",
+    param("root")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    param("name")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    (req, res) => {
+      // #swagger.tags = ['Icons']
+      // #swagger.operationId = '/api/projects/{root}/icons/{name}/get'
+      // #swagger.description = 'Get the icon file.'
+
+      /*
+        #swagger.parameters['root'] = {
+            in: 'path',
+            description: 'Project root',
+            type: 'string'
+        }
+
+        #swagger.parameters['name'] = {
+            in: 'path',
+            description: 'Project icon url',
+            type: 'string'
+        }
+      */
+
+      /*
+        #swagger.responses[200] = {
+            description: "Projects' icons object array",
+            content: {
+                "application/json": {
+                    schema:{
+                        $ref: "#/components/schemas/iconURL"
+                    }
+                }
+            }
+        }
+
+        #swagger.responses[400]
+      */
+      const data = matchedData(req);
+      const filePath = API.constructIconPath(data.root, data.name);
+      res.sendFile(filePath);
+    }
+  );
+
+  app.delete(
+    "/api/projects/:root/icons/:name",
+    param("root")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    param("name")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    (req, res) => {
+      try {
+        // #swagger.tags = ['Icons']
+        // #swagger.operationId = '/api/projects/{root}/icons/{name}/delete'
+        // #swagger.description = 'Delete the icon of the project.'
+
+        /*
+          #swagger.parameters['root'] = {
+              in: 'path',
+              description: 'Project root',
+              type: 'string'
+          }
+
+          #swagger.parameters['name'] = {
+              in: 'path',
+              description: 'Project icon url',
+              type: 'string'
+          }
+        */
+
+        /*
+          #swagger.responses[200] = {
+              description: "Projects' icons object array",
+              content: {
+                  "application/json": {
+                      schema:{
+                          $ref: "#/components/schemas/icons"
+                      }
+                  }
+              }
+          }
+
+          #swagger.responses[400]
+        */
+        const data = matchedData(req);
+        const iconsObjArr = API.removeIconOf1Project(data.root, data.name);
+        res.status(200).json(iconsObjArr);
+      } catch (e) {
+        log.error("delete projects icon error\n", H.normalizeErrorOutput(e as Error));
+        res.status(400).json(H.serializeError(e as Error));
+      }
+    }
+  );
+
+  app.get("/api/projects/icons", (req, res) => {
+    try {
+      // #swagger.tags = ['Icons']
+      // #swagger.operationId = '/api/projects/icons/get'
+      // #swagger.description = 'Get all available icons of one project.'
+
+      /*
+        #swagger.parameters['root'] = {
+            in: 'query',
+            required: false,
+            description: 'Project root',
+            type: 'string'
+        }
+      */
+
+      /*
+        #swagger.responses[200] = {
+            description: "Projects' icons object array",
+            content: {
+                "application/json": {
+                    schema:{
+                        $ref: "#/components/schemas/icons"
+                    }
+                }
+            }
+        }
+
+        #swagger.responses[400]
+      */
+      const root = decodeURIComponent(String(req.query.root).trim());
+      const iconsObjArr = API.getAllAvailableIcons(root);
+      res.status(200).json(iconsObjArr);
+    } catch (e) {
+      log.error("get projects icons error\n", H.normalizeErrorOutput(e as Error));
+      res.status(400).json(H.serializeError(e as Error));
+    }
+  });
 
   app.get("/api/projects/profile", async (req, res) => {
     // #swagger.tags = ['Profile']
@@ -168,6 +311,48 @@ async function startServer() {
       res.status(400).json(H.serializeError(e as Error));
     }
   });
+
+  app.post(
+    "/api/projects/:root/icons",
+    param("root")
+      .trim()
+      .customSanitizer((v) => decodeURIComponent(v)),
+    async (req, res) => {
+      // #swagger.tags = ['Icons']
+      // #swagger.operationId = '/api/projects/{root}/icons/post'
+      // #swagger.description = 'Upload icon for the project.'
+
+      /*
+        #swagger.requestBody = {
+            required: true,
+            content: {
+                "multipart/form-data": {
+                    'schema': {
+                        "type": "object",
+                        "properties": {
+                            "file": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        },
+                    }
+                }
+            }
+        }
+
+        #swagger.responses[400]
+      */
+
+      log.info("--> upload projects icon");
+      try {
+        const data = matchedData(req);
+        await API.acceptProjectIcon(data.root, req, res);
+      } catch (e) {
+        log.error("upload projects profile error", H.normalizeErrorOutput(e as Error));
+        res.status(400).json(H.serializeError(e as Error));
+      }
+    }
+  );
 
   app.post("/api/projects/github", body("repoPath").trim(), async (req, res) => {
     // #swagger.tags = ['Projects']

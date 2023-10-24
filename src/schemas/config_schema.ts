@@ -178,7 +178,13 @@ export const configSchema = {
     },
     img: {
       description: "The path to the project icon image.",
-      type: "string",
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        isUploaded: { type: "boolean" },
+      },
+      required: ["name", "isUploaded"],
+      additionalProperties: false,
     },
     category: {
       description: "The category of the project.",

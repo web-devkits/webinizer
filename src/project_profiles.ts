@@ -9,6 +9,7 @@ import fs from "graceful-fs";
 import path from "path";
 import { buildDirTree } from "./dtree";
 import { Project } from "./project";
+import { IProjectIcon } from "webinizer";
 
 export interface IProjectProfile {
   /**
@@ -30,7 +31,7 @@ export interface IProjectProfile {
   /**
    * The project icon.
    */
-  img?: string;
+  img?: IProjectIcon;
   /**
    * The project category.
    */

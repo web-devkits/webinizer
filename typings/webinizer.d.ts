@@ -173,6 +173,10 @@ declare module "webinizer" {
      */
     readonly desc: string | undefined;
     /**
+     * The project icon.
+     */
+    readonly img: IProjectIcon | undefined;
+    /**
      * The project keywords.
      */
     readonly keywords: string | undefined;
@@ -300,6 +304,20 @@ declare module "webinizer" {
   export type ProjectPkgConfig = {
     [k in PkgConfigType]: string;
   };
+
+  /**
+   * An object represents the project icon.
+   */
+  export interface IProjectIcon {
+    /**
+     * Icon name.
+     */
+    name: string;
+    /**
+     * The flag whether this icon is uploaded.
+     */
+    isUploaded: boolean;
+  }
 
   /**
    * An object represents a person.

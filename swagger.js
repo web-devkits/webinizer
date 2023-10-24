@@ -22,6 +22,10 @@ const doc = {
   schemes: ["http"],
   components: {
     schemas: {
+      iconURL:
+        "http://localhost:16666/api/projects/icons?root=g%252FProjects%252Fnative_projects%252Ftetris",
+      icons: [{ url: "http://localhost:16666/assets/icons/default/a.png", uploaded: false }],
+
       githubProject: {
         $repoPath: gitHubRepoPath,
         config: {
@@ -417,4 +421,8 @@ const doc = {
 const outputFile = "./swagger-output.json";
 const endpointsFiles = ["./src/server.ts"];
 
-swaggerAutogen({ openapi: "3.0.0" })(outputFile, endpointsFiles, doc);
+swaggerAutogen({ openapi: "3.0.0", autoHeaders: false, autoQuery: false, autoBody: false })(
+  outputFile,
+  endpointsFiles,
+  doc
+);
