@@ -144,16 +144,9 @@ class ProjectBuildConfig implements IProjectBuildConfig {
       const createConfigClass = (configType: BuildConfigType) => {
         configClassMap[configType] = new (configFromType(configType))(configType, this._data);
       };
-      const jsonKeys = Object.keys(this._data);
-      if (jsonKeys.includes("exportedFuncs")) {
-        createConfigClass("exportedFuncs");
-      }
-      if (jsonKeys.includes("exportedRuntimeMethods")) {
-        createConfigClass("exportedRuntimeMethods");
-      }
-      if (jsonKeys.includes("preloadFiles")) {
-        createConfigClass("preloadFiles");
-      }
+      createConfigClass("exportedFuncs");
+      createConfigClass("exportedRuntimeMethods");
+      createConfigClass("preloadFiles");
       this._configFields = configClassMap;
     }
     return this._configFields;
@@ -297,7 +290,9 @@ class ProjectBuildConfig implements IProjectBuildConfig {
         const envUpdateSet = configClass.updateToEnvs();
         this.save();
         (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
-          this.updateEnv(env, envUpdateSet[env]);
+          if (envUpdateSet[env].length) {
+            this.updateEnv(env, envUpdateSet[env]);
+          }
         });
       }
     }
@@ -319,7 +314,9 @@ class ProjectBuildConfig implements IProjectBuildConfig {
           if (optClass.updateToEnvs) {
             const envUpdateSet = optClass.updateToEnvs();
             (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
-              this.updateEnv(env, envUpdateSet[env]);
+              if (envUpdateSet[env].length) {
+                this.updateEnv(env, envUpdateSet[env]);
+              }
             });
           }
         }
@@ -363,7 +360,9 @@ class ProjectBuildConfig implements IProjectBuildConfig {
           const envUpdateSet = optClass.updateFromEnvs(currentEnv, envFlags);
           this.save();
           (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
-            this.updateEnv(env, envUpdateSet[env]);
+            if (envUpdateSet[env].length) {
+              this.updateEnv(env, envUpdateSet[env]);
+            }
           });
         }
       });
