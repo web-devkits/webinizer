@@ -15,6 +15,7 @@ import { IProjectIcon } from "webinizer";
 const log = H.getLogger("icons");
 
 const projectIconFolder = ".webinizer/icons";
+const uploadIconsMaximumNumber = 10;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleUploadIcon(root: string, req: any, res: any) {
@@ -27,6 +28,13 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
 
       checkUploadIconType(files.file[0].path);
       checkFileSize(fileSize);
+      // the maximum icons number of each project is 10
+      // maybe users put the image files into the folder manually
+      while (!checkIconsNumber(root)) {
+        // remove the earliest uploaded icon since the number has
+        // reached the maximum.
+        removeEarliestIcon(root);
+      }
 
       const targetFilePath = constructIconPath(root, fileName);
       fs.renameSync(String(files.file[0].path), targetFilePath);
@@ -77,6 +85,66 @@ function checkFileSize(fileSize: number): boolean {
   }
 
   return true;
+}
+
+/**
+ *  get the icons files under .webinizer/icons folder
+ *  and check if the number reach the maximum
+ */
+function checkIconsNumber(root: string): boolean {
+  const folderPath = validateUploadedIconFolder(root);
+  const existedIconsNumber = fs.readdirSync(folderPath).filter((file) => {
+    try {
+      return checkUploadIconType(path.resolve(folderPath, file));
+    } catch (err) {
+      return false;
+    }
+  }).length;
+
+  return existedIconsNumber < uploadIconsMaximumNumber;
+}
+
+function validateUploadedIconFolder(root: string) {
+  const projUploadIconFolderPath = path.resolve(root, projectIconFolder);
+  if (!fs.existsSync(projUploadIconFolderPath)) {
+    throw new H.WError(`The directory doesn't exist.`, errorCode.WEBINIZER_DIR_NOEXT);
+  }
+
+  return projUploadIconFolderPath;
+}
+
+function removeEarliestIcon(root: string) {
+  const folderPath = validateUploadedIconFolder(root);
+  let occupiedIcon = "";
+  // get current used uploaded icon in config.json
+  const proj = new Project(root);
+
+  if (proj.config.img?.isUploaded) {
+    occupiedIcon = proj.config.img.name;
+  }
+
+  // get all uploaded icons and sort them by uploaded time
+  const iconFiles = fs
+    .readdirSync(folderPath)
+    .filter((file) => {
+      try {
+        return checkUploadIconType(path.resolve(folderPath, file));
+      } catch (err) {
+        return false;
+      }
+    })
+    .filter((file) => {
+      return file !== occupiedIcon;
+    });
+
+  iconFiles.sort((a, b) => {
+    const aStat = fs.statSync(path.resolve(folderPath, a));
+    const bStat = fs.statSync(path.resolve(folderPath, b));
+
+    return new Date(aStat.birthtime).getTime() - new Date(bStat.birthtime).getTime();
+  });
+
+  fs.rmSync(path.resolve(folderPath, iconFiles[0]));
 }
 
 function constructUploadedIconsFolder(root: string): string {
