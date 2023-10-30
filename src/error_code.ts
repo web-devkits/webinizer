@@ -12,15 +12,15 @@ const enum errorCode {
   /* Webinizer init */
   WEBINIZER_INIT_MODULE_DIR_LOAD_FAIL = "WEBINIZER_INIT_MODULE_DIR_LOAD_FAIL", //Module directory loading failed while webinizer initialization.
   WEBINIZER_INIT_MODULE_LOAD_FAIL = "WEBINIZER_INIT_MODULE_LOAD_FAIL", // Module file loading failed while webinizer initialization.
-  WEBINIZER_INIT_MODULE_DIR_NOEXT = "WEBINIZER_INIT_MODULE_DIR_NOEXT", // Module dirctory does not exist while webinizer initialization.
+  WEBINIZER_INIT_MODULE_DIR_NOEXT = "WEBINIZER_INIT_MODULE_DIR_NOEXT", // Module directory does not exist while webinizer initialization.
   WEBINIZER_INIT_TOOLCHAIN_CHECK_FAIL = "WEBINIZER_INIT_TOOLCHAIN_CHECK_FAIL", // Required toolchain is not properly configured.
 
   /* Extension */
   WEBINIZER_EXT_HOME_DIR_LOAD_FAIL = "WEBINIZER_EXT_HOME_DIR_LOAD_FAIL", // Load extension home directory failed.
   WEBINIZER_EXT_DIR_LOAD_FAIL = "WEBINIZER_EXT_DIR_LOAD_FAIL", // Load extension directory failed.
   WEBINIZER_EXT_META_LOAD_FAIL = "WEBINIZER_EXT_META_LOAD_FAIL", // Load extension meta file failed.
-  WEBINIZER_EXT_HOME_DIR_NOEXT = "WEBINIZER_EXT_HOME_DIR_NOEXT", // Extesion home directory does not exist.
-  WEBINIZER_EXT_DIR_NOEXT = "WEBINIZER_EXT_DIR_NOEXT", // Extesion directory does not exist.
+  WEBINIZER_EXT_HOME_DIR_NOEXT = "WEBINIZER_EXT_HOME_DIR_NOEXT", // Extension home directory does not exist.
+  WEBINIZER_EXT_DIR_NOEXT = "WEBINIZER_EXT_DIR_NOEXT", // Extension directory does not exist.
   WEBINIZER_EXT_META_NOEXT = "WEBINIZER_EXT_META_NOEXT", // Extension meta file does not exist.
   WEBINIZER_EXT_UNKNOWN = "WEBINIZER_EXT_UNKNOWN", // Unknown extension.
 

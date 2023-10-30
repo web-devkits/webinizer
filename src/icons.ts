@@ -15,6 +15,7 @@ import { IProjectIcon } from "webinizer";
 const log = H.getLogger("icons");
 
 const projectIconFolder = ".webinizer/icons";
+const uploadIconsMaximumNumber = 10;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleUploadIcon(root: string, req: any, res: any) {
@@ -28,7 +29,18 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
       checkUploadIconType(files.file[0].path);
       checkFileSize(fileSize);
 
-      const targetFilePath = constructIconPath(root, fileName);
+      // construct the project icons folder first
+      const projUploadIconFolderPath = constructProjIconFolder(root);
+
+      // the maximum icons number of each project is 10
+      // maybe users put the image files into the folder manually
+      while (!checkIconsNumber(projUploadIconFolderPath)) {
+        // remove the earliest uploaded icon since the number has
+        // reached the maximum.
+        removeEarliestIcon(root, projUploadIconFolderPath);
+      }
+
+      const targetFilePath = constructIconPath(projUploadIconFolderPath, fileName);
       fs.renameSync(String(files.file[0].path), targetFilePath);
 
       // update project config
@@ -79,7 +91,23 @@ function checkFileSize(fileSize: number): boolean {
   return true;
 }
 
-function constructUploadedIconsFolder(root: string): string {
+/**
+ *  get the icons files under .webinizer/icons folder
+ *  and check if the number reach the maximum
+ */
+function checkIconsNumber(iconDirPath: string): boolean {
+  const existedIconsNumber = fs.readdirSync(iconDirPath).filter((file) => {
+    try {
+      return checkUploadIconType(path.resolve(iconDirPath, file));
+    } catch (err) {
+      return false;
+    }
+  }).length;
+
+  return existedIconsNumber < uploadIconsMaximumNumber;
+}
+
+function constructProjIconFolder(root: string): string {
   /** the icons of one project are stored under
    *  root/.webinizer/icons
    */
@@ -87,18 +115,51 @@ function constructUploadedIconsFolder(root: string): string {
   if (!fs.existsSync(path.resolve(root, ".webinizer"))) {
     throw new H.WError("Project root path doesn't exist.", errorCode.WEBINIZER_ROOT_NOEXT);
   }
+  const projUploadIconFolderPath = path.resolve(root, projectIconFolder);
 
-  const iconsStoredFolder = path.resolve(root, projectIconFolder);
-  if (!fs.existsSync(iconsStoredFolder)) {
-    fs.mkdirSync(iconsStoredFolder, { recursive: true });
+  if (!fs.existsSync(projUploadIconFolderPath)) {
+    fs.mkdirSync(projUploadIconFolderPath, { recursive: true });
   }
-  return iconsStoredFolder;
+  return projUploadIconFolderPath;
 }
 
-function constructIconPath(root: string, fileName: string): string {
+function removeEarliestIcon(root: string, iconDirPath: string) {
+  let occupiedIcon = "";
+  // get current used uploaded icon in config.json
+  const proj = new Project(root);
+
+  if (proj.config.img?.isUploaded) {
+    occupiedIcon = proj.config.img.name;
+  }
+
+  // get all uploaded icons and sort them by uploaded time
+  const iconFiles = fs
+    .readdirSync(iconDirPath)
+    .filter((file) => {
+      try {
+        return checkUploadIconType(path.resolve(iconDirPath, file));
+      } catch (err) {
+        return false;
+      }
+    })
+    .filter((file) => {
+      return file !== occupiedIcon;
+    });
+
+  iconFiles.sort((a, b) => {
+    const aStat = fs.statSync(path.resolve(iconDirPath, a));
+    const bStat = fs.statSync(path.resolve(iconDirPath, b));
+
+    return new Date(aStat.birthtime).getTime() - new Date(bStat.birthtime).getTime();
+  });
+
+  fs.rmSync(path.resolve(iconDirPath, iconFiles[0]));
+}
+
+function constructIconPath(iconDirPath: string, fileName: string): string {
   const timestamp = new Date().toISOString().replace(/[^a-zA-Z0-9]/g, "");
   const uniqueTargetName = `${timestamp}-${fileName}`;
-  return path.resolve(constructUploadedIconsFolder(root), uniqueTargetName);
+  return path.resolve(iconDirPath, uniqueTargetName);
 }
 
 /**
