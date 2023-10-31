@@ -129,7 +129,11 @@ export const configSchema = {
     },
     keywords: {
       description: "The project keywords.",
-      type: "string",
+      type: "array",
+      items: {
+        type: "string",
+        pattern: "^[A-Za-z](?:[_\\.-]?[A-Za-z0-9]+)*$",
+      },
     },
     homepage: {
       description: "The project homepage address.",

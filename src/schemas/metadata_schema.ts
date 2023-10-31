@@ -165,6 +165,7 @@ export const metaSchema = {
       type: "array",
       items: {
         type: "string",
+        pattern: "^[A-Za-z](?:[_\\.-]?[A-Za-z0-9]+)*$",
       },
     },
     homepage: {
