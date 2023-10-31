@@ -1233,6 +1233,9 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       if (jsonKeys.includes("repository")) {
         this.proj.meta.set("repository", _.cloneDeep(this.repository));
       }
+      if (jsonKeys.includes("img")) {
+        this.proj.meta.set("img", _.cloneDeep(this.img));
+      }
       if (jsonKeys.includes("buildTargets")) {
         this._buildTargetConfigMap = null;
         this.convertBuildTargetsToMeta();
@@ -1316,6 +1319,10 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       this.proj.meta.set("dependencies", _.cloneDeep(this.rawDependencies));
     }
 
+    /* image */
+    if (this.img) {
+      this.proj.meta.set("img", _.cloneDeep(this.img));
+    }
     /* webinizer customized fields */
     // buildTargets
     if (this.buildTargetConfigMap) {
@@ -1422,6 +1429,9 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     if (dotProp.has(diffContent, "repository")) {
       this.repository = (_.cloneDeep(this.proj.meta.get("repository")) ||
         undefined) as IProjectRepository;
+    }
+    if (dotProp.has(diffContent, "img")) {
+      this.img = (_.cloneDeep(this.proj.meta.get("img")) || undefined) as IProjectIcon;
     }
     /* handle webinizer specific fields */
     if (dotProp.has(diffContent, "webinizer.nativeLibrary")) {

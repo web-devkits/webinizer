@@ -55,12 +55,24 @@ export default async function publish(proj: Project) {
   if (untracked.code === 0) {
     const untrackedList = untracked.all
       .split("\n")
-      .filter((line) => line.trim())
-      .map((line) => "/" + line.trim()); // add "/" to the begining to specify files/dirs relative to .npmignore
+      .filter((line) => {
+        if (!line.trim()) return false;
+        // if the project uses default icon, just ignore all uploaded
+        // icons under .webinizer/icons folder, otherwise ignore other
+        // uploaded icons and just kept the one used by the project.
+        if (proj.config.img?.isUploaded) {
+          const img = path.join(".webinizer/icons/", proj.config.img.name);
+          if (img === line) return false;
+        }
+        return true;
+      })
+      .map((line) => "/" + line.trim()); // add "/" to the beginning to specify files/dirs relative to .npmignore
+
     // add .webinizer/config.json to ignore list
     if (!untrackedList.includes("/.webinizer/config.json")) {
       untrackedList.push("/.webinizer/config.json");
     }
+
     // create .npmignore file
     writeFileAtomic.sync(path.join(proj.root, ".npmignore"), untrackedList.join("\n") + "\n", {
       mode: 0o0600,
