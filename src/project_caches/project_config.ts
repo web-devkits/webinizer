@@ -1319,10 +1319,6 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       this.proj.meta.set("dependencies", _.cloneDeep(this.rawDependencies));
     }
 
-    /* image */
-    if (this.img) {
-      this.proj.meta.set("img", _.cloneDeep(this.img));
-    }
     /* webinizer customized fields */
     // buildTargets
     if (this.buildTargetConfigMap) {
@@ -1331,6 +1327,10 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     // nativeLibrary
     if (this.nativeLibrary) {
       this.proj.meta.set("webinizer.nativeLibrary", _.cloneDeep(this.nativeLibrary));
+    }
+    /* image */
+    if (this.img) {
+      this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
     }
   }
 
@@ -1430,9 +1430,7 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       this.repository = (_.cloneDeep(this.proj.meta.get("repository")) ||
         undefined) as IProjectRepository;
     }
-    if (dotProp.has(diffContent, "img")) {
-      this.img = (_.cloneDeep(this.proj.meta.get("img")) || undefined) as IProjectIcon;
-    }
+
     /* handle webinizer specific fields */
     if (dotProp.has(diffContent, "webinizer.nativeLibrary")) {
       this.nativeLibrary = (_.cloneDeep(this.proj.meta.get("webinizer.nativeLibrary")) ||
@@ -1440,6 +1438,12 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       // set isLibrary to true
       if (this.nativeLibrary && !this.isLibrary) this.isLibrary = true;
     }
+
+    // img
+    if (dotProp.has(diffContent, "webinizer.img")) {
+      this.img = (_.cloneDeep(this.proj.meta.get("webinizer.img")) || undefined) as IProjectIcon;
+    }
+
     // buildTargets
     this.useDefaultConfig = false;
     if (dotProp.has(diffContent, "webinizer.buildTargets")) {
