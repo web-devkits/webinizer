@@ -735,8 +735,10 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
   }
 
   set img(v: IProjectIcon | undefined) {
-    Object.assign(this.data, { img: v });
-    this.save();
+    this.data = { img: v };
+    if (JSON.stringify(this.img) !== JSON.stringify(this.proj.meta.get("webinizer.img"))) {
+      this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
+    }
   }
 
   // category: project category
@@ -1234,7 +1236,7 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
         this.proj.meta.set("repository", _.cloneDeep(this.repository));
       }
       if (jsonKeys.includes("img")) {
-        this.proj.meta.set("img", _.cloneDeep(this.img));
+        this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
       }
       if (jsonKeys.includes("buildTargets")) {
         this._buildTargetConfigMap = null;
