@@ -50,7 +50,7 @@ export async function handleUploadIcon(root: string, req: any, res: any) {
         img: { name: imgName, isUploaded: true },
       });
 
-      res.status(200).json({ iconName: imgName });
+      res.status(200).json(proj.config.toJson());
       return;
     } catch (error) {
       log.error("upload project icon error\n", H.normalizeErrorOutput(error as Error));

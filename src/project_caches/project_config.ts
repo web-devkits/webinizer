@@ -735,8 +735,10 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
   }
 
   set img(v: IProjectIcon | undefined) {
-    Object.assign(this.data, { img: v });
-    this.save();
+    this.data = { img: v };
+    if (JSON.stringify(this.img) !== JSON.stringify(this.proj.meta.get("webinizer.img"))) {
+      this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
+    }
   }
 
   // category: project category
@@ -1233,6 +1235,9 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       if (jsonKeys.includes("repository")) {
         this.proj.meta.set("repository", _.cloneDeep(this.repository));
       }
+      if (jsonKeys.includes("img")) {
+        this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
+      }
       if (jsonKeys.includes("buildTargets")) {
         this._buildTargetConfigMap = null;
         this.convertBuildTargetsToMeta();
@@ -1324,6 +1329,10 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     // nativeLibrary
     if (this.nativeLibrary) {
       this.proj.meta.set("webinizer.nativeLibrary", _.cloneDeep(this.nativeLibrary));
+    }
+    /* image */
+    if (this.img) {
+      this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
     }
   }
 
@@ -1423,6 +1432,7 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       this.repository = (_.cloneDeep(this.proj.meta.get("repository")) ||
         undefined) as IProjectRepository;
     }
+
     /* handle webinizer specific fields */
     if (dotProp.has(diffContent, "webinizer.nativeLibrary")) {
       this.nativeLibrary = (_.cloneDeep(this.proj.meta.get("webinizer.nativeLibrary")) ||
@@ -1430,6 +1440,12 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       // set isLibrary to true
       if (this.nativeLibrary && !this.isLibrary) this.isLibrary = true;
     }
+
+    // img
+    if (dotProp.has(diffContent, "webinizer.img")) {
+      this.img = (_.cloneDeep(this.proj.meta.get("webinizer.img")) || undefined) as IProjectIcon;
+    }
+
     // buildTargets
     this.useDefaultConfig = false;
     if (dotProp.has(diffContent, "webinizer.buildTargets")) {
