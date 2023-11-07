@@ -183,6 +183,36 @@ async function startServer() {
     }
   });
 
+  app.get("/api/projects/profile/deleted", async (req, res) => {
+    // #swagger.tags = ['Profile']
+    // #swagger.operationId = '/api/projects/profile/get'
+    // #swagger.description = 'Get all soft-deleted projects' profile.'
+
+    /*
+      #swagger.responses[200] = {
+          description: "Projects' profile array",
+          content: {
+              "application/json": {
+                  schema:{
+                      $ref: "#/components/schemas/profile"
+                  }
+              }
+          }
+      }
+
+      #swagger.responses[400]
+    */
+
+    log.info("--> get deleted projects profile", req.body);
+    try {
+      const profiles = API.getDeletedProjectProfilesFromDetection();
+      res.status(200).json({ profiles });
+    } catch (e) {
+      log.error("get projects profile error\n", H.normalizeErrorOutput(e as Error));
+      res.status(400).json(H.serializeError(e as Error));
+    }
+  });
+
   app.get("/api/projects/profile", async (req, res) => {
     // #swagger.tags = ['Profile']
     // #swagger.operationId = '/api/projects/profile/get'

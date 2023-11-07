@@ -16,8 +16,8 @@ import { recipeArrayFromJson, type Recipe } from "./recipe";
 import { buildStatus, type StatusType } from "./status";
 import errorCode from "./error_code";
 import { handleUploadProject, cloneProject, fetchProjectFromRegistry } from "./create_project";
-import { deleteProjectSoftly } from "./delete_project";
-import { getProfilesFromDetection } from "./project_profiles";
+import { deleteProjectFromDisk } from "./delete_project";
+import { getProfilesFromDetection, getDeletedProfilesFromDetection } from "./project_profiles";
 import { handleUploadIcon, constructAllAvailableIcons, removeIcon } from "./icons";
 import { search as searchPackage, IPackageSearchResult } from "./package_manager/search";
 import { Settings } from "./settings";
@@ -43,6 +43,10 @@ export async function resetBuildStatus(root: string, hardReset = false) {
 
 export function getProjectProfilesFromDetection(projectPoolDir?: string): IProjectProfile[] {
   return getProfilesFromDetection(projectPoolDir);
+}
+
+export function getDeletedProjectProfilesFromDetection(projectPoolDir?: string): IProjectProfile[] {
+  return getDeletedProfilesFromDetection(projectPoolDir);
 }
 
 export function getProjectConfig(root: string): ProjectConfig {
@@ -523,8 +527,8 @@ export async function addProjectFromRegistry(
 
 export function deleteProject(projPath: string): IProjectProfile[] {
   validateProjectRoot(projPath);
-  deleteProjectSoftly(projPath);
-  return getProfilesFromDetection();
+  deleteProjectFromDisk(projPath);
+  return getDeletedProfilesFromDetection();
 }
 
 export async function publishProject(root: string) {
