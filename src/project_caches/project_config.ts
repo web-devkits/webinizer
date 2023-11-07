@@ -659,18 +659,31 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     }
   }
 
-  get keywords(): string | undefined {
-    return this.data.keywords as string;
+  get keywords(): string[] | undefined {
+    return this.data.keywords as string[];
   }
 
-  set keywords(v: string | undefined) {
+  set keywords(v: string[] | undefined) {
     this.data = { keywords: v };
-    if (this.keywords === undefined && this.proj.meta.get("keywords") === undefined) return;
-    if (this.keywords !== ((this.proj.meta.get("keywords") || []) as string[]).join(",")) {
-      this.proj.meta.set(
-        "keywords",
-        this.keywords ? this.keywords.split(",").map((k) => k.trim()) : []
-      );
+    const equalsCheck = (a: string[], b: string[]) => {
+      return a.length === b.length && a.every((v, i) => v === b[i]);
+    };
+    if (!equalsCheck(this.keywords || [], (this.proj.meta.get("keywords") || []) as string[])) {
+      this.proj.meta.set("keywords", _.cloneDeep(this.keywords));
+    }
+  }
+
+  setDefaultKeywords(words = ["webinizer"]) {
+    const currentKeywords: string[] = this.keywords ? [...this.keywords] : [];
+    let keywordsUpdated = false;
+    words.forEach((word) => {
+      if (!currentKeywords.length || !currentKeywords.includes(word)) {
+        currentKeywords.splice(0, 0, word);
+        if (!keywordsUpdated) keywordsUpdated = true;
+      }
+    });
+    if (keywordsUpdated) {
+      this.keywords = currentKeywords;
     }
   }
 
@@ -1215,10 +1228,8 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
         this.proj.meta.set("description", this.desc);
       }
       if (jsonKeys.includes("keywords")) {
-        this.proj.meta.set(
-          "keywords",
-          this.keywords ? this.keywords.split(",").map((k) => k.trim()) : undefined
-        );
+        this.setDefaultKeywords();
+        this.proj.meta.set("keywords", _.cloneDeep(this.keywords));
       }
       if (jsonKeys.includes("homepage")) {
         this.proj.meta.set("homepage", this.homepage);
@@ -1320,6 +1331,24 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
     if (this.rawDependencies) {
       this.proj.meta.set("dependencies", _.cloneDeep(this.rawDependencies));
     }
+    /* keywords - check for default keywords */
+    this.setDefaultKeywords();
+
+    if (this.homepage) {
+      this.proj.meta.set("homepage", this.homepage);
+    }
+    if (this.bugs) {
+      this.proj.meta.set("bugs", this.bugs);
+    }
+    if (this.license) {
+      this.proj.meta.set("license", this.license);
+    }
+    if (this.author) {
+      this.proj.meta.set("author", _.cloneDeep(this.author));
+    }
+    if (this.repository) {
+      this.proj.meta.set("repository", _.cloneDeep(this.repository));
+    }
 
     /* webinizer customized fields */
     // buildTargets
@@ -1412,9 +1441,8 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       this.desc = (this.proj.meta.get("description") || "") as string;
     }
     if (dotProp.has(diffContent, "keywords")) {
-      this.keywords = this.proj.meta.get("keywords")
-        ? (this.proj.meta.get("keywords") as string[]).map((k) => k.trim()).join(",")
-        : undefined;
+      this.keywords = _.cloneDeep(this.proj.meta.get("keywords") || []) as string[];
+      this.setDefaultKeywords();
     }
     if (dotProp.has(diffContent, "homepage")) {
       this.homepage = (this.proj.meta.get("homepage") || "") as string;

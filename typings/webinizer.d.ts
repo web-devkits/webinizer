@@ -179,7 +179,7 @@ declare module "webinizer" {
     /**
      * The project keywords.
      */
-    readonly keywords: string | undefined;
+    readonly keywords: string[] | undefined;
     /**
      * The project homepage address.
      */
