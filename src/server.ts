@@ -508,6 +508,49 @@ async function startServer() {
     }
   );
 
+  app.delete("/api/projects", async (req, res) => {
+    // #swagger.tags = ['Projects']
+    // #swagger.operationId = '/api/projects/delete'
+    // #swagger.description = 'Delete the project'
+
+    /*
+        #swagger.parameters['projectRootArray'] = {
+            in: "query",
+            description: "Project root array need to be deleted",
+            required: true,
+            type: "string"
+        }
+
+        #swagger.responses[200] = {
+            description: "Deleted project profile.",
+            content: {
+                "application/json": {
+                    schema:{
+                        $ref: "#/components/schemas/profile"
+                    }
+                }
+            }
+        }
+
+        #swagger.responses[400]
+      */
+
+    log.info("--> delete project", req.params);
+    try {
+      (req.query.projectRootArray as string[])
+        .map((v) => decodeURIComponent(v.trim()))
+        .map((item) => {
+          API.deleteProject(item);
+        });
+      // return the rest deleted projects
+      const profiles = API.getDeletedProjectProfilesFromDetection();
+      res.status(200).json({ profiles });
+    } catch (e) {
+      log.error("delete project error", H.normalizeErrorOutput(e as Error));
+      res.status(400).json(H.serializeError(e as Error));
+    }
+  });
+
   app.get(
     "/api/projects/:root/config",
     param("root")
