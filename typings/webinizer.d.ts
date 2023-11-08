@@ -517,7 +517,6 @@ declare module "webinizer" {
   /**
    * An object represents a recipe from Webinizer.
    */
-
   export class Recipe {
     /**
      * Create a `Recipe` object.
@@ -571,6 +570,20 @@ declare module "webinizer" {
      * @returns A plain JSON object represents this recipe.
      */
     toJson(): IJsonObject;
+  }
+
+  /**
+   * An object represents the Builder creation options.
+   */
+  export interface IBuilderOptions {
+    /**
+     * The overall arguments string of the builder.
+     */
+    args?: string;
+    /**
+     * The working directory of the builder.
+     */
+    rootBuildFilePath?: string;
   }
 
   /**
@@ -659,10 +672,10 @@ declare module "webinizer" {
     /**
      * Create a default builder object from the factory.
      * @param proj The project instance.
-     * @param args The arguments of the builder.
+     * @param options The options to create a builder object.
      * @returns A builder object.
      */
-    createDefault(proj: Project, args?: string): IBuilder;
+    createDefault(proj: Project, options?: IBuilderOptions): IBuilder;
   }
 
   /**

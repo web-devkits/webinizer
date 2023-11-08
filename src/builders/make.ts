@@ -16,6 +16,7 @@ import {
   IBuilder,
   IBuilderFactory,
   IBuilderJson,
+  IBuilderOptions,
   IJsonObject,
   AdviseManager as IAdviseManager,
   Project as IProject,
@@ -40,9 +41,13 @@ class MakeBuilderFactory implements IBuilderFactory {
     return null;
   }
 
-  createDefault(proj: IProject, args?: string): MakeBuilder {
-    // use project root as default rootBuildFilePath
-    return new MakeBuilder(proj, 0, "${projectRoot}", args || "");
+  createDefault(proj: IProject, options?: IBuilderOptions): MakeBuilder {
+    return new MakeBuilder(
+      proj,
+      0,
+      options?.rootBuildFilePath || "${projectRoot}",
+      options?.args || ""
+    );
   }
 
   fromJson(proj: IProject, o: IJsonObject, index: number): IBuilder {

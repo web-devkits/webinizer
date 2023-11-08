@@ -44,7 +44,7 @@ Below is the package directory of the ``webinizer-extension-demo``.
 
 The extension directory has the following properties;
 
-* ``package.json`` & ``tsconfig.ts`` are required to all extension packages. 
+* ``package.json`` & ``tsconfig.json`` are required to all extension packages. 
 * ``package.json`` contains the npm package config data and the metadata of the extension.
 * ``tsconfig.json`` contains the typescript project config data of the extension.
 * ``src`` folder contains the source code of extension, while ``tests`` folder contains the test code of the extension.
@@ -218,9 +218,13 @@ Below is the example code of a new builder DemoBuilder of ``webinizer-extension-
       return null;
     }
 
-    createDefault(proj: webinizer.Project, args?: string): DemoBuilder {
-      // use project root as default rootBuildFilePath
-      return new DemoBuilder(proj, 0, "${projectRoot}", args || "");
+    createDefault(proj: webinizer.Project, options?: webinizer.IBuilderOptions): DemoBuilder {
+      return new DemoBuilder(
+        proj,
+        0,
+        options?.rootBuildFilePath || "${projectRoot}",
+        options?.args || ""
+      );
     }
 
     fromJson(proj: webinizer.Project, o: webinizer.IJsonObject, index: number): webinizer.IBuilder {

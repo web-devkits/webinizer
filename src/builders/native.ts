@@ -12,6 +12,7 @@ import {
   IBuilder,
   IBuilderFactory,
   IBuilderJson,
+  IBuilderOptions,
   IJsonObject,
   AdviseManager as IAdviseManager,
   Project as IProject,
@@ -27,9 +28,13 @@ class NativeBuilderFactory implements IBuilderFactory {
     return null;
   }
 
-  createDefault(proj: IProject, args?: string): NativeBuilder {
-    // use project root as default rootBuildFilePath
-    return new NativeBuilder(proj, 0, "${projectRoot}", args || "");
+  createDefault(proj: IProject, options?: IBuilderOptions): NativeBuilder {
+    return new NativeBuilder(
+      proj,
+      0,
+      options?.rootBuildFilePath || "${projectRoot}",
+      options?.args || ""
+    );
   }
 
   fromJson(proj: IProject, o: IJsonObject, index: number): IBuilder {
