@@ -46,16 +46,11 @@ export interface IProjectProfile {
   deleted?: boolean;
 }
 
-export function getProfilesFromDetection(projectPoolDir?: string): IProjectProfile[] {
-  const profiles = getProjectsProfiles(projectPoolDir);
-
-  // sort the demo projects based on id
-  const sortedProfiles = sortProjectsBasedOnId(profiles);
-  return sortedProfiles;
-}
-
-export function getDeletedProfilesFromDetection(projectPoolDir?: string): IProjectProfile[] {
-  const profiles = getProjectsProfiles(projectPoolDir, true);
+export function getProfilesFromDetection(
+  projectPoolDir?: string,
+  deletedFlag?: boolean
+): IProjectProfile[] {
+  const profiles = getProjectsProfiles(projectPoolDir, deletedFlag);
   // sort the demo projects based on id
   const sortedProfiles = sortProjectsBasedOnId(profiles);
   return sortedProfiles;

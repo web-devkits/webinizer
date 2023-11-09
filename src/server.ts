@@ -185,7 +185,7 @@ async function startServer() {
 
   app.get("/api/projects/profile/deleted", async (req, res) => {
     // #swagger.tags = ['Profile']
-    // #swagger.operationId = '/api/projects/profile/get'
+    // #swagger.operationId = '/api/projects/profile/deleted/get'
     // #swagger.description = 'Get all soft-deleted projects' profile.'
 
     /*
@@ -518,7 +518,7 @@ async function startServer() {
             in: "query",
             description: "Project root array need to be deleted",
             required: true,
-            type: "string"
+            type: "Array"
         }
 
         #swagger.responses[200] = {
