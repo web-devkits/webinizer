@@ -213,9 +213,9 @@ class CMakeBuilder implements IBuilder {
     if (reverse) lines = lines.reverse();
 
     // FIXME: this doesn't support file name which contains ':', but captures white space
-    const re = /CMake Error at \/(?<file>[^:]+):(?<line>\d+)(:(?<col>\d+))?\b/;
+    const re = /(?:CMake Error at )?(?<file>[^:]+):(?<line>\d+)(:(?<col>\d+))?\b/;
     for (const line of lines) {
-      const m = line.match(re);
+      const m = line.trimStart().match(re);
       if (m && m.groups) {
         return new FileLocation(
           m.groups.file as string,
