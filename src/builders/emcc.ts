@@ -13,6 +13,7 @@ import {
   IBuilder,
   IBuilderFactory,
   IBuilderJson,
+  IBuilderOptions,
   IJsonObject,
   AdviseManager as IAdviseManager,
   Project as IProject,
@@ -28,9 +29,13 @@ class EmccBuilderFactory implements IBuilderFactory {
     return null;
   }
 
-  createDefault(proj: IProject, args?: string): EmccBuilder {
-    // use project root as default rootBuildFilePath
-    return new EmccBuilder(proj, 0, "${projectRoot}", args || "");
+  createDefault(proj: IProject, options?: IBuilderOptions): EmccBuilder {
+    return new EmccBuilder(
+      proj,
+      0,
+      options?.rootBuildFilePath || "${projectRoot}",
+      options?.args || ""
+    );
   }
 
   fromJson(proj: IProject, o: IJsonObject, index: number): IBuilder {

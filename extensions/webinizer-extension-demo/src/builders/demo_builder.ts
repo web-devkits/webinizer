@@ -18,9 +18,13 @@ class DemoBuilderFactory implements webinizer.IBuilderFactory {
     return null;
   }
 
-  createDefault(proj: webinizer.Project, args?: string): DemoBuilder {
-    // use project root as default rootBuildFilePath
-    return new DemoBuilder(proj, 0, "${projectRoot}", args || "");
+  createDefault(proj: webinizer.Project, options?: webinizer.IBuilderOptions): DemoBuilder {
+    return new DemoBuilder(
+      proj,
+      0,
+      options?.rootBuildFilePath || "${projectRoot}",
+      options?.args || ""
+    );
   }
 
   fromJson(proj: webinizer.Project, o: webinizer.IJsonObject, index: number): webinizer.IBuilder {

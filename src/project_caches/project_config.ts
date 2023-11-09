@@ -449,7 +449,6 @@ class ProjectBuildConfig implements IProjectBuildConfig {
     log.info("updateBuildConfig", jsonParts, updateEnvParts, updateOptParts);
     if (refresh) {
       const jsonKeys = Object.keys(jsonParts);
-      log.info(`jsonKeys are ${jsonKeys.join(", ")}`);
       if (jsonKeys.includes("builders")) {
         this._builders = null;
         this.convertBuildersToMeta();

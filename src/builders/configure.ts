@@ -17,6 +17,7 @@ import {
   IBuilder,
   IBuilderFactory,
   IBuilderJson,
+  IBuilderOptions,
   IJsonObject,
   AdviseManager as IAdviseManager,
   Project as IProject,
@@ -41,9 +42,13 @@ class ConfigureBuilderFactory implements IBuilderFactory {
     return null;
   }
 
-  createDefault(proj: IProject, args?: string): ConfigureBuilder {
-    // use project root as default rootBuildFilePath
-    return new ConfigureBuilder(proj, 0, "${projectRoot}", args || "");
+  createDefault(proj: IProject, options?: IBuilderOptions): ConfigureBuilder {
+    return new ConfigureBuilder(
+      proj,
+      0,
+      options?.rootBuildFilePath || "${projectRoot}",
+      options?.args || ""
+    );
   }
 
   fromJson(proj: IProject, o: IJsonObject, index: number): IBuilder {

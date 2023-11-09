@@ -11,6 +11,7 @@
  */
 import path from "path";
 import fs from "graceful-fs";
+import { cloneDeep } from "lodash";
 import { AdviseManager } from "./advisor";
 import { ALL_BUILDER_FACTORIES } from "./builder";
 import * as H from "./helper";
@@ -76,13 +77,26 @@ export class Project implements IProject {
       if (builder) {
         builders.push(builder);
         if (builder.type === "CMakeBuilder" || builder.type === "ConfigureBuilder") {
-          // add MakeBuilder with a clean step ahead
           const m = ALL_BUILDER_FACTORIES.factoriesMap().get("MakeBuilder");
-          if (m) builders.push(...[m.createDefault(this, "clean"), m.createDefault(this)]);
+          if (m) {
+            // create the following builders with the same rootBuildFilePath as the detected
+            // one, and add MakeBuilder with a clean step ahead
+            builders.push(
+              ...[
+                m.createDefault(this, {
+                  rootBuildFilePath: builder.toJson().rootBuildFilePath,
+                  args: "clean",
+                }),
+                m.createDefault(this, {
+                  rootBuildFilePath: builder.toJson().rootBuildFilePath,
+                }),
+              ]
+            );
+          }
         }
         if (builder.type === "MakeBuilder") {
           // add MakeBuilder with a clean step ahead at the same build path
-          const m = builder.toJson();
+          const m = cloneDeep(builder.toJson());
           m.args = "clean";
           const mBuilder = ALL_BUILDER_FACTORIES.fromJsonArray(this, [m]);
           builders.splice(0, 0, ...mBuilder);
