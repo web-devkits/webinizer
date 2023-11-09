@@ -46,11 +46,13 @@ export interface IProjectProfile {
   deleted?: boolean;
 }
 
-export function getProfilesFromDetection(
-  projectPoolDir?: string,
-  deletedFlag?: boolean
-): IProjectProfile[] {
-  const profiles = getProjectsProfiles(projectPoolDir, deletedFlag);
+export interface IProjectProfileOptions {
+  projectPoolDir?: string;
+  deletedFlag?: boolean;
+}
+
+export function getProfilesFromDetection(options: IProjectProfileOptions): IProjectProfile[] {
+  const profiles = getProjectsProfiles(options);
   // sort the demo projects based on id
   const sortedProfiles = sortProjectsBasedOnId(profiles);
   return sortedProfiles;
@@ -79,8 +81,8 @@ function sortProjectsBasedOnId(profiles: IProjectProfile[]): IProjectProfile[] {
  * @param deletedFlag "true" means get all deleted projects profiles
  * @returns
  */
-function getProjectsProfiles(projectPoolDir?: string, deletedFlag?: boolean): IProjectProfile[] {
-  const dir = projectPoolDir || C.projectPool;
+function getProjectsProfiles(options: IProjectProfileOptions): IProjectProfile[] {
+  const dir = options.projectPoolDir || C.projectPool;
   const profiles = [] as IProjectProfile[];
   const deletedProfiles = [] as IProjectProfile[];
   const projectPool = buildDirTree(dir);
@@ -101,5 +103,5 @@ function getProjectsProfiles(projectPoolDir?: string, deletedFlag?: boolean): IP
     }
   }
 
-  return deletedFlag ? deletedProfiles : profiles;
+  return options.deletedFlag ? deletedProfiles : profiles;
 }

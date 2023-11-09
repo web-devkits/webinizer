@@ -42,11 +42,11 @@ export async function resetBuildStatus(root: string, hardReset = false) {
 }
 
 export function getProjectProfilesFromDetection(projectPoolDir?: string): IProjectProfile[] {
-  return getProfilesFromDetection(projectPoolDir, false);
+  return getProfilesFromDetection({ projectPoolDir: projectPoolDir, deletedFlag: false });
 }
 
 export function getDeletedProjectProfilesFromDetection(projectPoolDir?: string): IProjectProfile[] {
-  return getProfilesFromDetection(projectPoolDir, true);
+  return getProfilesFromDetection({ projectPoolDir: projectPoolDir, deletedFlag: true });
 }
 
 export function getProjectConfig(root: string): ProjectConfig {
@@ -528,7 +528,7 @@ export async function addProjectFromRegistry(
 export function deleteProject(projPath: string): IProjectProfile[] {
   validateProjectRoot(projPath);
   deleteProjectFromDisk(projPath);
-  return getDeletedProfilesFromDetection();
+  return getProfilesFromDetection({ deletedFlag: true });
 }
 
 export async function publishProject(root: string) {

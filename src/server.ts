@@ -203,7 +203,7 @@ async function startServer() {
       #swagger.responses[400]
     */
 
-    log.info("--> get deleted projects profile", req.body);
+    log.info("--> get deleted projects profile");
     try {
       const profiles = API.getDeletedProjectProfilesFromDetection();
       res.status(200).json({ profiles });
@@ -233,7 +233,7 @@ async function startServer() {
       #swagger.responses[400]
     */
 
-    log.info("--> get projects profile", req.body);
+    log.info("--> get projects profile");
     try {
       const profiles = API.getProjectProfilesFromDetection();
       res.status(200).json({ profiles });
