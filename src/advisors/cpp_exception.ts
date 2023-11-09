@@ -53,7 +53,8 @@ class CppExceptionAdvisor implements IAdvisor {
         if (
           fileExt.includes(path.extname(m.file)) &&
           !m.content.trim().startsWith("//") &&
-          !m.content.trim().startsWith("/*")
+          !m.content.trim().startsWith("/*") &&
+          !m.content.trim().endsWith("*/")
         ) {
           log.info(
             `The line with throw pattern is in file ${m.file} @ line ${m.line}:\n${m.content}`

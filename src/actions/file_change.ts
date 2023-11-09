@@ -14,33 +14,6 @@ import { IAction, IJsonObject, IToJson, Project as IProject, IFileChangeManager 
 
 const log = H.getLogger("file_change");
 
-/**
- * Some errors have file:line:col encoded in the error log
- * @param s error log
- * @param reverse find the first or last pattern occurrence in error log
- * @returns FileLocation or null
- * examples: CMake Error at /home/test/tests.cmake:146 (message):
- */
-export function getFileLocation(s: string, reverse: boolean): FileLocation | null {
-  let lines = s.trimStart().split("\n");
-  if (reverse) lines = lines.reverse();
-
-  // FIXME: this doesn't support file name which contains spaces. need to be fixed
-  const re = /\b(?<file>[^:\s]+):(?<line>\d+)(:(?<col>\d+))?\b/;
-
-  for (const line of lines) {
-    const m = line.match(re);
-    if (m && m.groups) {
-      return new FileLocation(
-        m.groups.file as string,
-        parseInt(m.groups.line as string),
-        m.groups.col ? parseInt(m.groups.col as string) : 0
-      );
-    }
-  }
-  return null;
-}
-
 export class FileLocation implements IToJson {
   file: string;
   line: number;
