@@ -10,7 +10,7 @@ import * as H from "../helper";
 import { ALL_BUILDER_FACTORIES } from "../builder";
 import { checkJsonType } from "../json_factory";
 import { ErrorAdviseRequest } from "../advise_requests/common_requests";
-import { getFileLocation } from "../actions/file_change";
+import { FileLocation } from "../actions/file_change";
 import { isPrevBuildersAllNative } from "../builder";
 import { dependencyDir } from "../constants";
 import {
@@ -106,7 +106,7 @@ class CMakeBuilder implements IBuilder {
           new ErrorAdviseRequest(
             "cmake",
             err,
-            getFileLocation(err, true /*search from last*/),
+            CMakeBuilder.getFileLocation(err, true /*search from last*/),
             this.id
           )
         );
@@ -198,6 +198,33 @@ class CMakeBuilder implements IBuilder {
       log.info(`... cmake successfully!`, dumpLog);
       return true;
     }
+  }
+
+  /**
+   * Some errors have file:line:col encoded in the error log
+   * @param s error log
+   * @param reverse find the first or last pattern occurrence in error log
+   * @returns FileLocation or null
+   * examples: CMake Error at /home/test/tests.cmake:146 (message):
+   * examples: CMake Error at /home/test file name with spaces/tests.cmake:146:12 (message):
+   */
+  static getFileLocation(s: string, reverse: boolean): FileLocation | null {
+    let lines = s.trimStart().split("\n");
+    if (reverse) lines = lines.reverse();
+
+    // FIXME: this doesn't support file name which contains ':', but captures white space
+    const re = /(?:CMake Error at )?(?<file>[^:]+):(?<line>\d+)(:(?<col>\d+))?\b/;
+    for (const line of lines) {
+      const m = line.trimStart().match(re);
+      if (m && m.groups) {
+        return new FileLocation(
+          m.groups.file as string,
+          parseInt(m.groups.line as string),
+          m.groups.col ? parseInt(m.groups.col as string) : 0
+        );
+      }
+    }
+    return null;
   }
 }
 
