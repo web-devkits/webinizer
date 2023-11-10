@@ -78,8 +78,12 @@ function sortProjectsBasedOnId(profiles: IProjectProfile[]): IProjectProfile[] {
 
 /**
  *
- * @param deletedFlag "true" means get all deleted projects profiles
- * @returns
+ * @param options The options of project profile
+ *                - set options.deletedFlag as true to get
+ *                  deleted projects profiles
+ *                - set options.deletedFlag as false to get
+ *                  all available projects profiles
+ * @returns Deleted | available project profiles array
  */
 function getProjectsProfiles(options: IProjectProfileOptions): IProjectProfile[] {
   const dir = options.projectPoolDir || C.projectPool;
