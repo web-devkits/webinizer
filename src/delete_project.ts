@@ -6,8 +6,7 @@
 
 import Path from "path";
 import errorCode from "./error_code";
-import { Project } from "./project";
-import { buildStatus } from "./status";
+import fs from "graceful-fs";
 import * as C from "./constants";
 import * as H from "./helper";
 
@@ -35,9 +34,14 @@ function checkIfProjectPathValid(projectPath: string) {
   }
 }
 
-export function deleteProjectSoftly(projectPath: string) {
+export function deleteProjectFromDisk(projectPath: string) {
+  // the hard delete action is only allowed under the projects pool
+  // directory.
   checkIfProjectPathValid(projectPath);
-  const proj = new Project(projectPath);
-  proj.config.updateRawJson({ deleted: true });
-  buildStatus.setBuildStatus(projectPath, "idle_default");
+
+  if (!fs.existsSync(projectPath)) {
+    throw new H.WError(`The directory doesn't exist.`, errorCode.WEBINIZER_DIR_NOEXT);
+  }
+
+  fs.rmSync(projectPath, { recursive: true });
 }

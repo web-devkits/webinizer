@@ -183,6 +183,36 @@ async function startServer() {
     }
   });
 
+  app.get("/api/projects/profile/deleted", async (req, res) => {
+    // #swagger.tags = ['Profile']
+    // #swagger.operationId = '/api/projects/profile/deleted/get'
+    // #swagger.description = 'Get all soft-deleted projects' profile.'
+
+    /*
+      #swagger.responses[200] = {
+          description: "Projects' profile array",
+          content: {
+              "application/json": {
+                  schema:{
+                      $ref: "#/components/schemas/profile"
+                  }
+              }
+          }
+      }
+
+      #swagger.responses[400]
+    */
+
+    log.info("--> get deleted projects profile");
+    try {
+      const profiles = API.getDeletedProjectProfilesFromDetection();
+      res.status(200).json({ profiles });
+    } catch (e) {
+      log.error("get projects profile error\n", H.normalizeErrorOutput(e as Error));
+      res.status(400).json(H.serializeError(e as Error));
+    }
+  });
+
   app.get("/api/projects/profile", async (req, res) => {
     // #swagger.tags = ['Profile']
     // #swagger.operationId = '/api/projects/profile/get'
@@ -203,7 +233,7 @@ async function startServer() {
       #swagger.responses[400]
     */
 
-    log.info("--> get projects profile", req.body);
+    log.info("--> get projects profile");
     try {
       const profiles = API.getProjectProfilesFromDetection();
       res.status(200).json({ profiles });
@@ -477,6 +507,49 @@ async function startServer() {
       }
     }
   );
+
+  app.delete("/api/projects", async (req, res) => {
+    // #swagger.tags = ['Projects']
+    // #swagger.operationId = '/api/projects/delete'
+    // #swagger.description = 'Delete the project'
+
+    /*
+        #swagger.parameters['projectRootArray'] = {
+            in: "query",
+            description: "Project root array need to be deleted",
+            required: true,
+            type: "Array"
+        }
+
+        #swagger.responses[200] = {
+            description: "Deleted project profile.",
+            content: {
+                "application/json": {
+                    schema:{
+                        $ref: "#/components/schemas/profile"
+                    }
+                }
+            }
+        }
+
+        #swagger.responses[400]
+      */
+
+    log.info("--> delete project", req.params);
+    try {
+      (req.query.projectRootArray as string[])
+        .map((v) => decodeURIComponent(v.trim()))
+        .map((item) => {
+          API.deleteProject(item);
+        });
+      // return the rest deleted projects
+      const profiles = API.getDeletedProjectProfilesFromDetection();
+      res.status(200).json({ profiles });
+    } catch (e) {
+      log.error("delete project error", H.normalizeErrorOutput(e as Error));
+      res.status(400).json(H.serializeError(e as Error));
+    }
+  });
 
   app.get(
     "/api/projects/:root/config",
