@@ -133,7 +133,7 @@ export default class ProjectResult extends ProjectCacheFile {
           if (filePath) {
             if (ext === "") {
               // ensure target file is JS file rather than native binary file
-              const re = await H.runCommand(`file -b ${filePath}`, { silent: true });
+              const re = await H.runCommand(`file -b '${filePath}'`, { silent: true });
               if (re.code === 0 && re.all.includes("ASCII text, with very long lines")) {
                 // check if there is .js file exists (maybe from last build) and compare the modified date
                 if (buildFiles.map((b) => b.name).includes(targetName + ".js")) {

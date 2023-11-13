@@ -101,7 +101,7 @@ class EmccBuilder implements IBuilder {
       ]),
     ];
 
-    const cmd = `${this.command} ` + shlex.join(argsUnion).replace(/'/g, "");
+    const cmd = `${this.command} ` + shlex.join(argsUnion).replace(/'/g, "").replace(/"/g, "'");
     log.info(`... running emcc command: ${cmd}`, dumpLog);
     const results = await H.runCommand(
       cmd,

@@ -314,7 +314,7 @@ export async function getFileContent(root: string, name: string): Promise<string
   const relative = path.relative(root, name);
   if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) {
     // check file type before reading it, throw error for unsupported file format (binary, etc...)
-    const fileType = await H.runCommand(`file -b ${name}`, { silent: true });
+    const fileType = await H.runCommand(`file -b '${name}'`, { silent: true });
     if (
       fileType.code === 0 &&
       (fileType.all.includes("ASCII text") ||

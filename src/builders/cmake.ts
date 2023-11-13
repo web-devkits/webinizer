@@ -143,8 +143,10 @@ class CMakeBuilder implements IBuilder {
                 )
               ),
             ])
-            .replace(/'/g, "")
+            .replace(/'/g, "") /* remove any ' charaters from shlex */
+            .replace(/"/g, "'") /* change " -> ' to escape characters like spaces used in command */
         : "";
+
       const linkerFlags = this._proj.config.getOverallEnv("ldflags")
         ? shlex
             .join([
@@ -154,11 +156,12 @@ class CMakeBuilder implements IBuilder {
                 )
               ),
             ])
-            .replace(/'/g, "")
+            .replace(/'/g, "") /* remove any ' charaters from shlex */
+            .replace(/"/g, "'") /* change " -> ' to escape characters like spaces used in command */
         : "";
       // define install path
       const prefixFlags = this._proj.config.isLibrary
-        ? ` -DCMAKE_INSTALL_PREFIX=${this._proj.constant.projectDist}`
+        ? ` -DCMAKE_INSTALL_PREFIX="'${this._proj.constant.projectDist}'"`
         : "";
       // update project prefix in `pkgConfig` field
       if (
@@ -185,6 +188,7 @@ class CMakeBuilder implements IBuilder {
         ? shlex
             .join([...new Set(this.args.map((a) => this._proj.evalTemplateLiterals(a)))])
             .replace(/'/g, "")
+            .replace(/"/g, "'")
         : "") +
       envCmds;
     log.info(`... running emcmake command: ${cmd}`, dumpLog);
