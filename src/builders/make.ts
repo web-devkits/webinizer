@@ -114,8 +114,10 @@ class MakeBuilder implements IBuilder {
                 )
               ),
             ])
-            .replace(/'/g, "")
+            .replace(/'/g, "") /* remove any ' charaters from shlex */
+            .replace(/"/g, "'") /* change " -> ' to escape characters like spaces used in command */
         : "";
+
       const linkerFlags = this._proj.config.getOverallEnv("ldflags")
         ? shlex
             .join([
@@ -125,11 +127,12 @@ class MakeBuilder implements IBuilder {
                 )
               ),
             ])
-            .replace(/'/g, "")
+            .replace(/'/g, "") /* remove any ' charaters from shlex */
+            .replace(/"/g, "'") /* change " -> ' to escape characters like spaces used in command */
         : "";
       // define install path
       const prefixFlags = this._proj.config.isLibrary
-        ? `PREFIX=${this._proj.constant.projectDist} `
+        ? `PREFIX="'${this._proj.constant.projectDist}'" `
         : "";
       // update project prefix in `pkgConfig` field
       if (

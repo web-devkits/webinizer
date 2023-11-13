@@ -33,9 +33,15 @@ class PreloadFilesConfig extends BaseBuildConfig {
       const a = args[i];
       if (a.includes("--preload-file")) {
         // store local file path and mapped path in virtual FS together
-        const f = a.split(" ").pop()?.trim();
-        if (f && !localFiles.includes(f)) {
-          localFiles.push(f);
+        const rawFile = a.split("--preload-file").pop()?.trim();
+        const filePath = _.trim(rawFile, '"');
+        if (filePath && !localFiles.includes(filePath)) {
+          localFiles.push(filePath);
+          if (rawFile && (!rawFile.startsWith('"') || !rawFile.endsWith('"'))) {
+            // add " " to wrap the filePath to escape possible spaces. These " will be
+            // replaced with ' at build time.
+            args[i] = `--preload-file "${filePath}"`;
+          }
         } else {
           args[i] = "";
         }
@@ -59,7 +65,7 @@ class PreloadFilesConfig extends BaseBuildConfig {
           { option: "--preload-file", value: null, type: "deleteAll" },
           ...dedupeVal.map((f) => {
             // preload file is mapped to root of virtual FS (@/) if mapping directory is not defined
-            const opt = f.includes("@/") ? `--preload-file ${f}` : `--preload-file ${f}@/`;
+            const opt = f.includes("@/") ? `--preload-file "${f}"` : `--preload-file "${f}@/"`;
             return { option: opt, value: null, type: "replace" };
           }),
         ] as IArg[])

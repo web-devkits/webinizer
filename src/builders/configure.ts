@@ -103,7 +103,7 @@ class ConfigureBuilder implements IBuilder {
       [
         {
           option: "--prefix",
-          value: path.join("${projectRoot}", buildDir),
+          value: `"${path.join("${projectRoot}", buildDir)}"`,
           type: "replace",
         },
       ],
@@ -138,8 +138,10 @@ class ConfigureBuilder implements IBuilder {
                 )
               ),
             ])
-            .replace(/'/g, "")
+            .replace(/'/g, "") /* remove any ' charaters from shlex */
+            .replace(/"/g, "'") /* change " -> ' to escape characters like spaces used in command */
         : "";
+
       const linkerFlags = this._proj.config.getOverallEnv("ldflags")
         ? shlex
             .join([
@@ -149,7 +151,8 @@ class ConfigureBuilder implements IBuilder {
                 )
               ),
             ])
-            .replace(/'/g, "")
+            .replace(/'/g, "") /* remove any ' charaters from shlex */
+            .replace(/"/g, "'") /* change " -> ' to escape characters like spaces used in command */
         : "";
       envCmds =
         (compilerFlags ? `CFLAGS="${compilerFlags}" CXXFLAGS="${compilerFlags}" ` : "") +
@@ -179,6 +182,7 @@ class ConfigureBuilder implements IBuilder {
         ? shlex
             .join([...new Set(this.args.map((a) => this._proj.evalTemplateLiterals(a)))])
             .replace(/'/g, "")
+            .replace(/"/g, "'")
         : "");
     log.info(`... running configure command: ${cmd}`, dumpLog);
     const results = await H.runCommand(
