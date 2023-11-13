@@ -10,6 +10,7 @@ import { EnvUpdateSet, BuildConfigType } from "..";
 import { BaseBuildConfig, registerConfig } from "../config";
 import { EnvType, IArg } from "webinizer";
 import shlex from "shlex";
+import * as _ from "lodash";
 
 class PreloadFilesConfig extends BaseBuildConfig {
   static __type__: BuildConfigType = "preloadFiles";
@@ -41,26 +42,29 @@ class PreloadFilesConfig extends BaseBuildConfig {
       }
     }
     this.value = localFiles;
-    // return the (updated) envFlags to update envs field
-    return shlex.join(args);
+    // return the (updated and filtered) envFlags to update envs field
+    return shlex.join(args.filter((o) => o));
   }
 
   updateToEnvs(): EnvUpdateSet {
     const ldflagsToUpdate: IArg[] = [];
-    const val = this.value as string[];
+    const val = _.cloneDeep(this.value) as string[];
 
     if (val && val.length) {
+      // check for possible duplicates
+      const dedupeVal = [...new Set(val)];
       // remove all previous preload files ("deleteAll") and then add the new ones
       ldflagsToUpdate.push(
         ...([
           { option: "--preload-file", value: null, type: "deleteAll" },
-          ...val.map((f) => {
+          ...dedupeVal.map((f) => {
             // preload file is mapped to root of virtual FS (@/) if mapping directory is not defined
             const opt = f.includes("@/") ? `--preload-file ${f}` : `--preload-file ${f}@/`;
             return { option: opt, value: null, type: "replace" };
           }),
         ] as IArg[])
       );
+      this.value = dedupeVal;
     } else {
       // if preloadFiles is [], remove all --preload-file args
       ldflagsToUpdate.push({
