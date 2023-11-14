@@ -351,12 +351,12 @@ class ProjectBuildConfig implements IProjectBuildConfig {
   }
 
   updateOptionsFromEnvs(currentEnv: EnvType) {
-    const envFlags = this.getEnv(currentEnv).trim();
     if (this.options) {
       const opts = Object.keys(this.options) as BuildOptionType[];
       opts.forEach((opt) => {
         const optClass = this.options ? this.options[opt] : null;
         if (optClass && optClass.updateFromEnvs) {
+          const envFlags = this.getEnv(currentEnv).trim();
           const envUpdateSet = optClass.updateFromEnvs(currentEnv, envFlags);
           this.save();
           (Object.keys(envUpdateSet) as EnvType[]).forEach((env) => {
@@ -371,12 +371,12 @@ class ProjectBuildConfig implements IProjectBuildConfig {
 
   updateConfigsFromEnvs(currentEnv: EnvType) {
     if (currentEnv === "ldflags") {
-      const envFlags = this.getEnv("ldflags").trim();
       if (this.configFields) {
         const fields = Object.keys(this.configFields) as BuildConfigType[];
         fields.forEach((field) => {
           const configClass = this.configFields ? this.configFields[field] : null;
           if (configClass && configClass.updateFromEnvs) {
+            const envFlags = this.getEnv("ldflags").trim();
             const updatedEnvsFlags = configClass.updateFromEnvs(currentEnv, envFlags);
             this.save();
             this.setEnv("ldflags", updatedEnvsFlags);
