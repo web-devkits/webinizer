@@ -158,33 +158,14 @@ function checkUploadedFileType(type: string) {
   }
 }
 
-/**
- * same named projects under project pool directory is
- * not allowed
- *
- * @param projectFolderPath The file's name without the extension
- */
-function checkIfProjectExists(projectFolderPath: string): boolean {
-  return fs.existsSync(projectFolderPath);
-}
-
-function checkIfProjectDeleted(projectPath: string): boolean {
-  const proj = new Project(projectPath);
-  return proj.config.deleted as boolean;
-}
-
 function generateValidProjFolderName(origProjectPath: string): string {
-  /**NOTE - 2 situations allowed:
-   *          1) project dose not exist
-   *          2) project exists but has been deleted
+  /** use the rename the project name with if the projectPath
+   *  does not exist, otherwise rename with new one
    */
   const folderName = Path.basename(origProjectPath);
-  if (!checkIfProjectExists(origProjectPath)) return folderName;
-  else {
-    if (!checkIfProjectDeleted(origProjectPath)) {
-      // validate if the existing project is deleted or not
-      throw new H.WError(`Project already exists.`, errorCode.WEBINIZER_ROOT_EXT);
-    }
+  if (!fs.existsSync(origProjectPath)) {
+    return folderName;
+  } else {
     const newFolderName = renameNewlyAddedProject(folderName);
     const newFolderPath = Path.resolve(C.projectPool, newFolderName);
     return generateValidProjFolderName(newFolderPath);
