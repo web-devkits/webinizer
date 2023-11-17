@@ -159,8 +159,8 @@ function checkUploadedFileType(type: string) {
 }
 
 function generateValidProjFolderName(origProjectPath: string): string {
-  /** use the rename the project name with if the projectPath
-   *  does not exist, otherwise rename with new one
+  /** use the project name if the projectPath does not
+   *  exist, otherwise rename with a new one
    */
   const folderName = Path.basename(origProjectPath);
   if (!fs.existsSync(origProjectPath)) {
