@@ -13,6 +13,7 @@ import * as H from "./helper";
 import { init } from "./init";
 import * as API from "./api";
 import { IJsonObject } from "webinizer";
+import { WebSocketManager } from "./ws/websocket";
 
 const log = H.getLogger("server");
 const PORT = 16666;
@@ -1666,7 +1667,12 @@ async function startServer() {
     }
   });
 
-  app.listen(PORT, () => log.warn(`Server started at port ${chalk.redBright(PORT)}...`));
+  const server = app.listen(PORT, () =>
+    log.warn(`Server started at port ${chalk.redBright(PORT)}...`)
+  );
+
+  const webSocket = new WebSocketManager();
+  webSocket.initialize(server);
 }
 
 startServer();
