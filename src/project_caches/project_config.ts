@@ -1248,6 +1248,9 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
       if (jsonKeys.includes("img")) {
         this.proj.meta.set("webinizer.img", _.cloneDeep(this.img));
       }
+      if (jsonKeys.includes("nativeLibrary")) {
+        this.proj.meta.set("webinizer.nativeLibrary", _.cloneDeep(this.nativeLibrary));
+      }
       if (jsonKeys.includes("buildTargets")) {
         this._buildTargetConfigMap = null;
         this.convertBuildTargetsToMeta();
