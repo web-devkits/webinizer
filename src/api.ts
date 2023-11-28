@@ -23,6 +23,7 @@ import { search as searchPackage, IPackageSearchResult } from "./package_manager
 import { Settings } from "./settings";
 import { EnvType, BuildOptionType, IJsonObject, IBuilder, IProjectIcon } from "webinizer";
 import { WebSocketManager, WsMessageType } from "./ws/websocket";
+import dotProp from "dot-prop";
 
 const log = H.getLogger("api");
 
@@ -183,7 +184,6 @@ export async function updateProjectBuildConfig(
         proj.config.getBuildConfigForTarget(target).updateBuildConfig(buildConfigToUpdate);
       } else {
         // to update a current target
-        // const buildConfigJson = proj.config.getRawBuildConfigForTarget(target);
         let needActualUpdate = false;
         let updatePkgConfig = false;
 
@@ -223,9 +223,11 @@ export async function updateProjectBuildConfig(
           const buildConfig = proj.config.getBuildConfigForTarget(target);
           buildConfig.updateBuildConfig(buildConfigToUpdate, { updateEnvParts, updateOptParts });
 
-          // if the package config is updated, should send websocket
-          // message to inform the parent project
           if (updatePkgConfig) {
+            // If the package config is updated, we should propagate the update to
+            // all requiredBy projects.
+            await proj.config.propagateOverallEnvsUpdate();
+            // And should send websocket message to inform the parent projects.
             const ws = new WebSocketManager();
             ws.broadcastMsgToAllClients({
               wsMsgType: WsMessageType.UpdateDependenciesConfig,
@@ -430,6 +432,13 @@ export async function updateFileContent(
       // cleanup the backup files and dependency folder if needed
       proj.cleanBackupFiles();
       if (needBackupDepsDir) proj.cleanDependencyDirBackup();
+      if (dotProp.has(diffContent, "webinizer.buildTargets")) {
+        // ws broadcast on possible pkgConfig update
+        const ws = new WebSocketManager();
+        ws.broadcastMsgToAllClients({
+          wsMsgType: WsMessageType.UpdateDependenciesConfig,
+        });
+      }
       return fs.readFileSync(name, "utf8");
     } catch (err) {
       // errors happened during configs update, restore meta and config before update
