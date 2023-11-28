@@ -60,7 +60,6 @@ export class WebSocketManager {
   }
 
   onConnectionHandler = (webSocketConnection: ws, root: string) => {
-    // this.addConnection(webSocketConnection);
     log.warn(`websocket connection established.`);
     this.addWsConnection(root, webSocketConnection);
     webSocketConnection.on("message", this.onMessageHandler);
