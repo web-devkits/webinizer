@@ -183,7 +183,6 @@ export async function updateProjectBuildConfig(
         proj.config.getBuildConfigForTarget(target).updateBuildConfig(buildConfigToUpdate);
       } else {
         // to update a current target
-        // const buildConfigJson = proj.config.getRawBuildConfigForTarget(target);
         let needActualUpdate = false;
         let updatePkgConfig = false;
 
@@ -223,9 +222,11 @@ export async function updateProjectBuildConfig(
           const buildConfig = proj.config.getBuildConfigForTarget(target);
           buildConfig.updateBuildConfig(buildConfigToUpdate, { updateEnvParts, updateOptParts });
 
-          // if the package config is updated, should send websocket
-          // message to inform the parent project
           if (updatePkgConfig) {
+            // If the package config is updated, we should propagate the update to
+            // all requiredBy projects.
+            await proj.config.propagateOverallEnvsUpdate();
+            // And should send websocket message to inform the parent projects.
             const ws = new WebSocketManager();
             ws.broadcastMsgToAllClients({
               wsMsgType: WsMessageType.UpdateDependenciesConfig,

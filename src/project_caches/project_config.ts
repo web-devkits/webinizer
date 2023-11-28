@@ -1276,8 +1276,34 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
             this.setRawBuildConfigForTarget(this.target, {} as H.Dict<unknown>);
           }
           this.updateOverallEnvsFromSelf(this.getBuildConfigForTarget(this.target).envs);
+          // update overallEnvs for all requiredBy projects recursively.
+          await this.propagateOverallEnvsUpdate();
         }
       }
+    }
+  }
+
+  async propagateOverallEnvsUpdate() {
+    if (this.requiredBy && !H.isObjectEmpty(this.requiredBy)) {
+      await Promise.all(
+        Object.keys(this.requiredBy).map(async (name) => {
+          const requiredProjRoot = await this.detectProjectRoot(
+            name,
+            this.requiredBy?.[name] || "",
+            false /* detect for parent project */
+          );
+          if (requiredProjRoot) {
+            const requiredProj = new Project(requiredProjRoot);
+            await requiredProj.config.updateOverallEnvsFromDeps();
+            await requiredProj.config.propagateOverallEnvsUpdate();
+          } else {
+            throw new H.WError(
+              `Can't find required project ${name} on local disk`,
+              errorCode.WEBINIZER_ROOT_NOEXT
+            );
+          }
+        })
+      );
     }
   }
 
@@ -1490,6 +1516,10 @@ export class ProjectConfig extends ProjectCacheFile implements IProjectConfig {
         if (this.target && !newTargetSet.includes(this.target)) this.target = newTargetSet[0];
       } else {
         this.target = "";
+      }
+      if (this.target) {
+        // update overallEnvs for all requiredBy projects recursively.
+        await this.propagateOverallEnvsUpdate();
       }
     }
 
