@@ -29,6 +29,7 @@ import ProjectLog from "./project_caches/project_log";
 import ProjectRecipe from "./project_caches/project_recipe";
 import publish from "./package_manager/publish";
 import { Project as IProject, ProjectConstType, IBuilder } from "webinizer";
+import { WebSocketManager, WsMessageType } from "./ws/websocket";
 
 const log = H.getLogger("project");
 export class Project implements IProject {
@@ -318,7 +319,26 @@ export class Project implements IProject {
           depBuildStatus !== "building_with_recipes"
         ) {
           log.info(`... build dependency: ${k}@${depRoot}`, dumpLog);
+          // there is a scenario that the dependency cannot be
+          // aware of the start of its building process, and the
+          // browser cannot update the build status.
+          // here we send the message to the browser through websocket
+          // connection.
+          const ws = new WebSocketManager();
+          ws.broadcastMsg4Project(depRoot, {
+            buildStatus: "building",
+            wsMsgType: WsMessageType.UpdateBuildStatus,
+          });
+
           const r = await this.config.dependencies[k].build(null);
+
+          // send the new build status of this dependency
+          const depBuildStatus = await buildStatus.getBuildStatus(depRoot);
+          ws.broadcastMsg4Project(depRoot, {
+            buildStatus: depBuildStatus,
+            wsMsgType: WsMessageType.UpdateBuildStatus,
+          });
+
           if (r.length) {
             this.config.dependencies[k].recipe.saveRecipes(r);
             // depRecipes.push(k.replace(C.projectPool, "${projectPool}"));

@@ -22,10 +22,11 @@ import { handleUploadIcon, constructAllAvailableIcons, removeIcon } from "./icon
 import { search as searchPackage, IPackageSearchResult } from "./package_manager/search";
 import { Settings } from "./settings";
 import { EnvType, BuildOptionType, IJsonObject, IBuilder, IProjectIcon } from "webinizer";
+import { WebSocketManager, WsMessageType } from "./ws/websocket";
 
 const log = H.getLogger("api");
 
-function validateProjectRoot(root: string) {
+export function validateProjectRoot(root: string) {
   if (!root) {
     throw new H.WError("Project root path can't be empty.", errorCode.WEBINIZER_ROOT_EMPTY);
   }
@@ -64,6 +65,7 @@ export async function updatePartOfProjectConfig(
   let needActualUpdate = false;
   let needCreateBuildTargetsField = false;
   let needUpdateBuildTargets = false;
+  let updateTarget = false;
   const configJson = proj.config.toJson();
 
   for (const k in configPart) {
@@ -85,6 +87,9 @@ export async function updatePartOfProjectConfig(
         needCreateBuildTargetsField = true;
         needUpdateBuildTargets = true;
       }
+    }
+    if (k === "target") {
+      updateTarget = true;
     }
   }
   if (needActualUpdate) {
@@ -109,6 +114,14 @@ export async function updatePartOfProjectConfig(
       } else {
         // configPart has no update on `buildTargets`, simply update
         await proj.config.updateRawJson(configPart);
+      }
+      // if the package config is updated, should send websocket
+      // message to inform the parent project
+      if (updateTarget) {
+        const ws = new WebSocketManager();
+        ws.broadcastMsgToAllClients({
+          wsMsgType: WsMessageType.UpdateDependenciesConfig,
+        });
       }
     } catch (err) {
       // errors happened during configs update, restore meta and config before update
@@ -156,6 +169,7 @@ export async function updateProjectBuildConfig(
 ): Promise<ProjectConfig> {
   validateProjectRoot(root);
   const proj = new Project(root);
+
   try {
     // backup meta and config files before updating configs
     proj.backupConfigFiles();
@@ -171,6 +185,8 @@ export async function updateProjectBuildConfig(
         // to update a current target
         // const buildConfigJson = proj.config.getRawBuildConfigForTarget(target);
         let needActualUpdate = false;
+        let updatePkgConfig = false;
+
         let updateEnvParts: EnvType[] | undefined = undefined;
         let updateOptParts: BuildOptionType[] | undefined = undefined;
 
@@ -197,12 +213,24 @@ export async function updateProjectBuildConfig(
             // to-be-updated part is not in current proj.config, update directly
             if (!needActualUpdate) needActualUpdate = true;
           }
+          if (k === "pkgConfig") {
+            updatePkgConfig = true;
+          }
         }
         if (needActualUpdate) {
           log.info(`... actual update on project config for target ${target}`);
           await proj.resetBuildStatus();
           const buildConfig = proj.config.getBuildConfigForTarget(target);
           buildConfig.updateBuildConfig(buildConfigToUpdate, { updateEnvParts, updateOptParts });
+
+          // if the package config is updated, should send websocket
+          // message to inform the parent project
+          if (updatePkgConfig) {
+            const ws = new WebSocketManager();
+            ws.broadcastMsgToAllClients({
+              wsMsgType: WsMessageType.UpdateDependenciesConfig,
+            });
+          }
         }
       }
     }
@@ -282,7 +310,7 @@ export async function resetAdvisors(root: string): Promise<ProjectConfig> {
 
 export async function build(root: string, r: IJsonObject[] | null): Promise<Recipe[]> {
   validateProjectRoot(root);
-  // we create a brand new project everytime
+  // we create a brand new project every time
   const proj = new Project(root);
   const recipes = r ? recipeArrayFromJson(proj, r) : null;
   try {
