@@ -318,7 +318,8 @@ export class Project implements IProject {
           depBuildStatus !== "building" &&
           depBuildStatus !== "building_with_recipes"
         ) {
-          log.info(`... build dependency: ${k}@${depRoot}`, dumpLog); // there is a scenario that the dependency cannot be
+          log.info(`... build dependency: ${k}@${depRoot}`, dumpLog);
+          // there is a scenario that the dependency cannot be
           // aware of the start of its building process, and the
           // browser cannot update the build status.
           // here we send the message to the browser through websocket
