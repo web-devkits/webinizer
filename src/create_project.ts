@@ -42,7 +42,7 @@ export async function handleUploadProject(req: any, res: any) {
       const projectDesc = String(fields.projectDesc);
       const projectIsLib = String(fields.projectIsLib) === "true" ? true : false;
       const projectDependencies = JSON.parse(String(fields.projectDependencies));
-      const projImg = String(fields.img);
+      const projImg = JSON.parse(String(fields.img));
 
       /* get files details from `files`*/
       const fileFullName = String(files.file[0].originalFilename);
