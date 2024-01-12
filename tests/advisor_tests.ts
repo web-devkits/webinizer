@@ -124,7 +124,7 @@ describe("advisor", () => {
 
   it("DepCheckAdvisorTest", async () => {
     const req = new PlainAdviseRequest("pre-build", "");
-    const actionDesc = "We detect that your project depends on below requiured packages:";
+    const actionDesc = "We detect that your project depends on below required packages:";
     const advisorType = "DepCheckAdvisor";
     const projRoot = path.join(TEST_ADVISOR_ASSETS_DIR, advisorType);
     const result = await advise(advisorType, projRoot, req);
@@ -397,6 +397,29 @@ describe("advisor", () => {
     const req = new ErrorAdviseRequest("cfg_args", errMsg, null, 0);
     const actionDesc = `Emscripten does \`not\` support \`x86 SIMD assembly\`, all code should be written to use SIMD intrinsic functions or compiler vector extensions. Otherwise it would need to be replaced with portable C or C++.\nSometimes a codebase will have both portable code and optional architectures-specific assembly as an optimization, so you might find an option to disable it (i.e., \`--disable-x86asm\`, \`--disable-asm\`).`;
     const advisorType = "X86AsmAdvisor";
+    const projRoot = path.join(TEST_ADVISOR_ASSETS_DIR, advisorType);
+    const result = await advise(advisorType, projRoot, req);
+
+    expect(result.handled).to.equal(true);
+    expect((result.recipe as Recipe).actions[0].desc).to.include(actionDesc);
+  });
+
+  it("ModularizeJSAdvisorTest1", async () => {
+    const errMsg = `"/emsdk/upstream/emscripten/src/shell.html" is not compatible with build options "-sMODULARIZE -sEXPORT_NAME=Module"`;
+    const req = new ErrorAdviseRequest("make", errMsg, null, 0);
+    const actionDesc = `We have detected that \`html\` is set as the build target format, which conflicts with the modularize js output configuration option. Do you want to disable the \`Modularize JS output\` option and keep html as the build target format?`;
+    const advisorType = "ModularizeJSAdvisor";
+    const projRoot = path.join(TEST_ADVISOR_ASSETS_DIR, advisorType);
+    const result = await advise(advisorType, projRoot, req);
+
+    expect(result.handled).to.equal(true);
+    expect((result.recipe as Recipe).actions[0].desc).to.include(actionDesc);
+  });
+
+  it("ModularizeJSAdvisorTest2", async () => {
+    const req = new PlainAdviseRequest("pre-build", "");
+    const actionDesc = `We have detected that \`html\` is set as the build target format, which conflicts with the modularize js output configuration option. Do you want to disable the \`Modularize JS output\` option and keep html as the build target format?`;
+    const advisorType = "ModularizeJSAdvisor";
     const projRoot = path.join(TEST_ADVISOR_ASSETS_DIR, advisorType);
     const result = await advise(advisorType, projRoot, req);
 

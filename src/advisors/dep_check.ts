@@ -155,7 +155,7 @@ class DepCheckAdvisor implements IAdvisor {
             actions.push(
               new ShowSuggestionAction(
                 "option",
-                `We detect that your project depends on below requiured packages:\n${nonPorts.join(
+                `We detect that your project depends on below required packages:\n${nonPorts.join(
                   ", "
                 )}\nHowever, we can't use native build versions of them. Instead, please build them from source with Webinizer first - add them to your dependent projects and then link them against the current main project.`,
                 null,

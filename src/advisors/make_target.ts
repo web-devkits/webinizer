@@ -89,10 +89,10 @@ class MakeTargetAdvisor implements IAdvisor {
           break;
         }
       }
-      // 3. check if the make directory is a auxilliaryDir that is not necessary to build
+      // 3. check if the make directory is a auxiliaryDir that is not necessary to build
       // FIXME. extend the hardcode here to cover more cases
-      const auxilliaryDir = ["doc", "docs", "demo", "man", "test"];
-      if (target && dir && auxilliaryDir.includes(path.relative(path.resolve(proj.root), dir))) {
+      const auxiliaryDir = ["doc", "docs", "demo", "man", "test"];
+      if (target && dir && auxiliaryDir.includes(path.relative(path.resolve(proj.root), dir))) {
         return this._generateMakeTargetAdvise(proj, errorReq, target, dir);
       }
     }

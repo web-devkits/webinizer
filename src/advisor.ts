@@ -34,6 +34,7 @@ export class AdviseManager implements IAdviseManager {
   queueRequest(req: IAdviseRequest) {
     this._requestList.push(req);
   }
+
   async advise(): Promise<Recipe[]> {
     let requests = this._requestList;
     const recipes: Recipe[] = [];
@@ -47,7 +48,7 @@ export class AdviseManager implements IAdviseManager {
         for (const advisor of pipeline.advisors) {
           const result = await advisor.advise(this.proj, req, requests);
           if (result.handled) {
-            log.info(`  - adviced by ${advisor.type}`);
+            log.info(`  - advised by ${advisor.type}`);
             if (result.recipe) {
               recipes.push(result.recipe);
             }
@@ -89,7 +90,7 @@ export class AdviseManager implements IAdviseManager {
 export function registerAdvisorFactory(type: string, factory: IAdvisorFactory) {
   H.assert(
     !_ALL_ADVISOR_FACTORIES.has(type),
-    `Already registerred AdvisorFactory with type: ${type}`
+    `Already registered AdvisorFactory with type: ${type}`
   );
 
   _ALL_ADVISOR_FACTORIES.set(type, factory);

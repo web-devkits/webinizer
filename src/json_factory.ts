@@ -16,7 +16,7 @@ export function checkJsonType(type: string, o: IJsonObject) {
 }
 
 // By default, the Factory only contains fromJson(), but if one need to add more
-// items into it, you could explictly pass in X as well.
+// items into it, you could explicitly pass in X as well.
 export class JsonFactories<
   T,
   X extends IFromJson<T> | FromJsonMethod<T> = IFromJson<T> | FromJsonMethod<T>
