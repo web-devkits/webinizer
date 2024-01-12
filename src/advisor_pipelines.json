@@ -8,7 +8,8 @@
         { "__type__": "HeaderMissingAdvisor" },
         { "__type__": "MakeTargetAdvisor" },
         { "__type__": "SDLAdvisor" },
-        { "__type__": "TestTargetErrorAdvisor" }
+        { "__type__": "TestTargetErrorAdvisor" },
+        { "__type__": "ModularizeJSAdvisor" }
       ]
     },
     {
@@ -25,7 +26,8 @@
         { "__type__": "ExportNameAdvisor" },
         { "__type__": "MainLoopAdvisor" },
         { "__type__": "PThreadAdvisor" },
-        { "__type__": "TemplateLiteralValidateAdvisor" }
+        { "__type__": "TemplateLiteralValidateAdvisor" },
+        { "__type__": "ModularizeJSAdvisor" }
       ]
     },
     {
