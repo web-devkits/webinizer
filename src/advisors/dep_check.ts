@@ -83,6 +83,8 @@ class DepCheckAdvisor implements IAdvisor {
   ): Promise<IAdviseResult> {
     // generate for CMake - find find_package(<packageName> REQUIRED) pattern
     const pkgReg = /find_package\((\s*)?(?<pkg>\S*) .*REQUIRED.*\)/;
+    const libraryReg = /\${(.+)_LIBRARIES}/;
+    const includeDirReg = /\${(.+)_INCLUDE_DIRS}/;
     const actions = [] as IAction[];
     const nonPorts = [] as string[];
     const rawBuilders = proj.config.getBuildConfigForTarget(proj.config.target).rawBuilders;
@@ -99,10 +101,13 @@ class DepCheckAdvisor implements IAdvisor {
         !path.isAbsolute(relative)
       ) {
         const lines = fs.readFileSync(file, "utf-8").split("\n");
+        const resolvedPkgs: string[] = [];
         for (let i = 0; i < lines.length; i++) {
-          // ignore comment out lines
-          if (!lines[i].trim().startsWith("#")) {
+          // ignore comment out lines and empty lines
+          if (lines[i].trim().length > 0 && !lines[i].trim().startsWith("#")) {
+            // check if this line is to find dependent package
             const m = lines[i].match(pkgReg);
+
             if (m && m.groups) {
               // handle variants of the emPorts names: SDL2_ttf -> sdl2ttf, SDL2ttf, etc.
               const pkgName = m.groups.pkg.toLowerCase().replace(/_/g, "");
@@ -145,26 +150,63 @@ class DepCheckAdvisor implements IAdvisor {
                     }
                   )
                 );
+                // only resolved packages that are ported by
+                // emscripten and the compiler and linker flags for
+                // this package are added can be added into
+                // resolvedPkgs
+                resolvedPkgs.push(pkgName);
               } else {
                 nonPorts.push(m.groups.pkg);
               }
+            } else {
+              const n = lines[i].match(libraryReg);
+              const o = lines[i].match(includeDirReg);
+
+              // check if this line is related to resolved packages
+              // ${XXX_LIBRARIES} & ${XXX_INCLUDE_DIRS} are defined
+              // from statement `find_package`, also should be
+              // checked and resolved
+              const pkgName =
+                n && n[1] !== null
+                  ? n[1].toLowerCase().replace(/_/g, "")
+                  : o && o[1] !== null
+                  ? o[1].toLowerCase().replace(/_/g, "")
+                  : "";
+
+              // if this library has been resolved
+              if (pkgName !== "" && resolvedPkgs.includes(pkgName)) {
+                // comment this statement
+                actions.push(
+                  new FileChangeAction(
+                    proj.fileChangeManager,
+                    `Comment unnecessary statements for \`${pkgName}\` from \`CMakeLists.txt\` at line **${
+                      i + 1
+                    }**`,
+                    new FileRegion(file, i + 1),
+                    "# " + lines[i]
+                  )
+                );
+              }
+            }
+
+            if (nonPorts.length > 0) {
+              // show suggestion to user to build non EMCC ported dependent packages from source
+              actions.push(
+                new ShowSuggestionAction(
+                  "option",
+                  `We detect that your project depends on below required packages:\n${nonPorts.join(
+                    ", "
+                  )}\nHowever, we can't use native build versions of them. Instead, please build them from source with Webinizer first - add them to your dependent projects and then link them against the current main project.`,
+                  null,
+                  null
+                )
+              );
             }
           }
-          if (nonPorts.length > 0)
-            // show suggestion to user to build non EMCC ported dependent packages from source
-            actions.push(
-              new ShowSuggestionAction(
-                "option",
-                `We detect that your project depends on below required packages:\n${nonPorts.join(
-                  ", "
-                )}\nHowever, we can't use native build versions of them. Instead, please build them from source with Webinizer first - add them to your dependent projects and then link them against the current main project.`,
-                null,
-                null
-              )
-            );
         }
       }
     }
+
     if (actions.length > 0)
       return {
         handled: true,
