@@ -83,8 +83,10 @@ class DepCheckAdvisor implements IAdvisor {
   ): Promise<IAdviseResult> {
     // generate for CMake - find find_package(<packageName> REQUIRED) pattern
     const pkgReg = /find_package\((\s*)?(?<pkg>\S*) .*REQUIRED.*\)/;
-    const libraryReg = /\${(.+)_LIBRARIES}/;
-    const includeDirReg = /\${(.+)_INCLUDE_DIRS}/;
+    const libraryReg = /\${(.+?)(_LIBRARIES|_INCLUDE_DIRS)}/;
+    // store the regex pattern of the statements that lead cmake
+    // construction errors
+    const fatalBlackListReg: RegExp[] = [/string\(.*\)/];
     const actions = [] as IAction[];
     const nonPorts = [] as string[];
     const rawBuilders = proj.config.getBuildConfigForTarget(proj.config.target).rawBuilders;
@@ -102,6 +104,7 @@ class DepCheckAdvisor implements IAdvisor {
       ) {
         const lines = fs.readFileSync(file, "utf-8").split("\n");
         const resolvedPkgs: string[] = [];
+        const uselessParamsLocationMap = new Map<number, string>();
         for (let i = 0; i < lines.length; i++) {
           // ignore comment out lines and empty lines
           if (lines[i].trim().length > 0 && !lines[i].trim().startsWith("#")) {
@@ -159,33 +162,47 @@ class DepCheckAdvisor implements IAdvisor {
                 nonPorts.push(m.groups.pkg);
               }
             } else {
-              const n = lines[i].match(libraryReg);
-              const o = lines[i].match(includeDirReg);
-
               // check if this line is related to resolved packages
               // ${XXX_LIBRARIES} & ${XXX_INCLUDE_DIRS} are defined
               // from statement `find_package`, also should be
               // checked and resolved
-              const pkgName =
-                n && n[1] !== null
-                  ? n[1].toLowerCase().replace(/_/g, "")
-                  : o && o[1] !== null
-                  ? o[1].toLowerCase().replace(/_/g, "")
-                  : "";
+              let matchLib;
 
-              // if this library has been resolved
-              if (pkgName !== "" && resolvedPkgs.includes(pkgName)) {
-                // comment this statement
-                actions.push(
-                  new FileChangeAction(
-                    proj.fileChangeManager,
-                    `Comment unnecessary statements for \`${pkgName}\` from \`CMakeLists.txt\` at line **${
-                      i + 1
-                    }**`,
-                    new FileRegion(file, i + 1),
-                    "# " + lines[i]
-                  )
-                );
+              let lineContent = lines[i];
+              const paramsSet = new Set<string>();
+              while ((matchLib = libraryReg.exec(lineContent)) !== null) {
+                const libName = matchLib[1].toLowerCase().replace(/_/g, "");
+                // if this library has been resolved
+                if (libName !== "" && resolvedPkgs.includes(libName)) {
+                  // for the statements exists in black-list
+                  const isFatal = fatalBlackListReg.some((reg) => {
+                    if (reg.test(lines[i])) {
+                      return true;
+                    }
+                  });
+                  if (isFatal) {
+                    actions.push(
+                      new FileChangeAction(
+                        proj.fileChangeManager,
+                        `Comment useless statement for \`${libName}\` from \`CMakeLists.txt\` at line **${
+                          i + 1
+                        }**`,
+                        new FileRegion(file, i + 1),
+                        `#` + lines[i]
+                      )
+                    );
+                    break;
+                  }
+
+                  paramsSet.add(matchLib[0]);
+                  lineContent = lineContent.replace(matchLib[0], "");
+                } else {
+                  break;
+                }
+              }
+
+              if (paramsSet.size > 0) {
+                uselessParamsLocationMap.set(i + 1, [...paramsSet].join(", "));
               }
             }
 
@@ -203,6 +220,19 @@ class DepCheckAdvisor implements IAdvisor {
               );
             }
           }
+        }
+
+        if (uselessParamsLocationMap.size > 0) {
+          const tableHeader = `| Line | Parameter |\n|:---:|:---:|`;
+          const tableContent = Array.from(uselessParamsLocationMap.entries())
+            .map(([line, param]) => `| _**${line}**_ | \`${param}\``)
+            .join("\n");
+          const descPrefix = `Followings are the parameters and their location in \`CMakeLists.txt\` file,  which will be invalid after you click apply recipe button because webinizer will attempt to remove \`find_package\` for this package since it has been ported by emscripten.`;
+          const descSuffix = `You could resolve them manually to avoid the possible interruption of cmake construction.`;
+          const tableMd = `${descPrefix}\n${tableHeader}\n${tableContent}\n\n${descSuffix}`;
+
+          // just define one action for these invalid parameters
+          actions.push(new ShowSuggestionAction("error", tableMd, null, null));
         }
       }
     }
