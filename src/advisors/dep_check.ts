@@ -228,7 +228,7 @@ class DepCheckAdvisor implements IAdvisor {
             .map(([line, param]) => `| _**${line}**_ | \`${param}\``)
             .join("\n");
           const descPrefix = `Followings are the parameters and their location in \`CMakeLists.txt\` file,  which will be invalid after you click apply recipe button because webinizer will attempt to remove \`find_package\` for this package since it has been ported by emscripten.`;
-          const descSuffix = `You could resolve them manually to avoid the possible interruption of cmake construction.`;
+          const descSuffix = `You could resolve them manually to avoid possible build failures.`;
           const tableMd = `${descPrefix}\n${tableHeader}\n${tableContent}\n\n${descSuffix}`;
 
           // just define one action for these invalid parameters
