@@ -83,6 +83,10 @@ class DepCheckAdvisor implements IAdvisor {
   ): Promise<IAdviseResult> {
     // generate for CMake - find find_package(<packageName> REQUIRED) pattern
     const pkgReg = /find_package\((\s*)?(?<pkg>\S*) .*REQUIRED.*\)/;
+    const libraryReg = /\${(.+?)(_LIBRARIES|_INCLUDE_DIRS)}/;
+    // store the regex pattern of the statements that lead cmake
+    // construction errors
+    const fatalBlackListReg: RegExp[] = [/string\(.*\)/];
     const actions = [] as IAction[];
     const nonPorts = [] as string[];
     const rawBuilders = proj.config.getBuildConfigForTarget(proj.config.target).rawBuilders;
@@ -99,10 +103,14 @@ class DepCheckAdvisor implements IAdvisor {
         !path.isAbsolute(relative)
       ) {
         const lines = fs.readFileSync(file, "utf-8").split("\n");
+        const resolvedPkgs: string[] = [];
+        const uselessParamsLocationMap = new Map<number, string>();
         for (let i = 0; i < lines.length; i++) {
-          // ignore comment out lines
-          if (!lines[i].trim().startsWith("#")) {
+          // ignore comment out lines and empty lines
+          if (lines[i].trim().length > 0 && !lines[i].trim().startsWith("#")) {
+            // check if this line is to find dependent package
             const m = lines[i].match(pkgReg);
+
             if (m && m.groups) {
               // handle variants of the emPorts names: SDL2_ttf -> sdl2ttf, SDL2ttf, etc.
               const pkgName = m.groups.pkg.toLowerCase().replace(/_/g, "");
@@ -145,26 +153,90 @@ class DepCheckAdvisor implements IAdvisor {
                     }
                   )
                 );
+                // only resolved packages that are ported by
+                // emscripten and the compiler and linker flags for
+                // this package are added can be added into
+                // resolvedPkgs
+                resolvedPkgs.push(pkgName);
               } else {
                 nonPorts.push(m.groups.pkg);
               }
+            } else {
+              // check if this line is related to resolved packages
+              // ${XXX_LIBRARIES} & ${XXX_INCLUDE_DIRS} are defined
+              // from statement `find_package`, also should be
+              // checked and resolved
+              let matchLib;
+
+              let lineContent = lines[i];
+              const paramsSet = new Set<string>();
+              while ((matchLib = libraryReg.exec(lineContent)) !== null) {
+                const libName = matchLib[1].toLowerCase().replace(/_/g, "");
+                // if this library has been resolved
+                if (libName !== "" && resolvedPkgs.includes(libName)) {
+                  // for the statements exists in black-list
+                  const isFatal = fatalBlackListReg.some((reg) => {
+                    if (reg.test(lines[i])) {
+                      return true;
+                    }
+                  });
+                  if (isFatal) {
+                    actions.push(
+                      new FileChangeAction(
+                        proj.fileChangeManager,
+                        `Comment useless statement for \`${libName}\` from \`CMakeLists.txt\` at line **${
+                          i + 1
+                        }**`,
+                        new FileRegion(file, i + 1),
+                        `# ${lines[i]}`
+                      )
+                    );
+                    break;
+                  }
+
+                  paramsSet.add(matchLib[0]);
+                  lineContent = lineContent.replace(matchLib[0], "");
+                } else {
+                  break;
+                }
+              }
+
+              if (paramsSet.size > 0) {
+                uselessParamsLocationMap.set(i + 1, [...paramsSet].join(", "));
+              }
+            }
+
+            if (nonPorts.length > 0) {
+              // show suggestion to user to build non EMCC ported dependent packages from source
+              actions.push(
+                new ShowSuggestionAction(
+                  "option",
+                  `We detect that your project depends on below required packages:\n${nonPorts.join(
+                    ", "
+                  )}\nHowever, we can't use native build versions of them. Instead, please build them from source with Webinizer first - add them to your dependent projects and then link them against the current main project.`,
+                  null,
+                  null
+                )
+              );
             }
           }
-          if (nonPorts.length > 0)
-            // show suggestion to user to build non EMCC ported dependent packages from source
-            actions.push(
-              new ShowSuggestionAction(
-                "option",
-                `We detect that your project depends on below required packages:\n${nonPorts.join(
-                  ", "
-                )}\nHowever, we can't use native build versions of them. Instead, please build them from source with Webinizer first - add them to your dependent projects and then link them against the current main project.`,
-                null,
-                null
-              )
-            );
+        }
+
+        if (uselessParamsLocationMap.size > 0) {
+          const tableHeader = `| Line | Parameter |\n|:---:|:---:|`;
+          const tableContent = Array.from(uselessParamsLocationMap.entries())
+            .map(([line, param]) => `| _**${line}**_ | \`${param}\``)
+            .join("\n");
+          const descPrefix = `Followings are the parameters and their location in \`CMakeLists.txt\` file,  which will be invalid after you click apply recipe button because webinizer will attempt to remove \`find_package\` for this package since it has been ported by emscripten.`;
+          const descSuffix = `You could resolve them manually to avoid possible build failures.`;
+          const tableMd = `${descPrefix}\n${tableHeader}\n${tableContent}\n\n${descSuffix}`;
+
+          // just define one action for these invalid parameters
+          actions.push(new ShowSuggestionAction("error", tableMd, null, null));
         }
       }
     }
+
     if (actions.length > 0)
       return {
         handled: true,
