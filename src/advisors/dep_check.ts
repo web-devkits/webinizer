@@ -188,7 +188,7 @@ class DepCheckAdvisor implements IAdvisor {
                           i + 1
                         }**`,
                         new FileRegion(file, i + 1),
-                        `#` + lines[i]
+                        `# ${lines[i]}`
                       )
                     );
                     break;
