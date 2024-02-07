@@ -354,6 +354,31 @@ describe("advisor", () => {
     expect((result.recipe as Recipe).actions[0].desc).to.include(actionDesc);
   });
 
+  it("SimdAdvisorTest2", async () => {
+    const errMsg =
+      "In file included from /home/.local/sdk/emsdk/upstream/lib/clang/16.0.0/include/x86intrin.h:13:\n";
+    const req = new ErrorAdviseRequest("cfg_args", errMsg, null, 0);
+    const actionDesc = `Emscripten does \`not\` support including \`x86intrin.h\` directly, please check out your codebase and remove corresponding header files including statements if they are useless.\n As for using SIMD, please refer to [Using SIMD with WebAssembly](https://emscripten.org/docs/porting/simd.html#using-simd-with-webassembly)`;
+    const advisorType = "SimdAdvisor";
+    const projRoot = path.join(TEST_ADVISOR_ASSETS_DIR, `${advisorType}_2`);
+    const result = await advise(advisorType, projRoot, req);
+
+    expect(result.handled).to.equal(true);
+    expect((result.recipe as Recipe).actions[0].desc).to.include(actionDesc);
+  });
+
+  it("SimdAdvisorTest3", async () => {
+    const req = new PlainAdviseRequest("pre-build", "");
+    const actionDescRegex =
+      /Add corresponding compiler flag since `(sse2|sse3|ssse3|sse4_1|sse4_2|avx)` instruction set is used in the codebase/;
+    const advisorType = "SimdAdvisor";
+    const projRoot = path.join(TEST_ADVISOR_ASSETS_DIR, `${advisorType}_2`);
+    const result = await advise(advisorType, projRoot, req);
+
+    expect(result.handled).to.equal(true);
+    expect((result.recipe as Recipe).actions[0].desc).to.match(actionDescRegex);
+  });
+
   it("StripAdvisorTest", async () => {
     const errMsg = "strip: file format not recognized\n";
     const req = new ErrorAdviseRequest("cfg_args", errMsg, null, 0);
