@@ -271,7 +271,7 @@ export interface IPattern {
 }
 
 /**
- * Find specific petterns in files using `grep`
+ * Find specific patterns in files using `grep`
  * @param s Pattern for search
  * @param dir Base directory for search
  * @param excludeDirs Excluded directories for search
