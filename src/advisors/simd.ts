@@ -122,6 +122,19 @@ class SimdAdvisor implements IAdvisor {
     }
 
     if (actions.length) {
+      if (
+        !buildConfig.getEnv("cflags").includes("-msimd128") ||
+        !buildConfig.getEnv("ldflags").includes("-msimd128")
+      ) {
+        actions.push(
+          new ConfigOptionChangeAction(
+            proj,
+            "If you want to port `SIMD` code targeting WebAssembly, we should enable the `SIMD support` option.",
+            { needSimd: true }
+          )
+        );
+      }
+
       return {
         handled: true,
         recipe: new Recipe(proj, "Recipe for SIMD intrinsic header issue", this, req, actions),
