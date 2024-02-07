@@ -27,7 +27,8 @@
         { "__type__": "MainLoopAdvisor" },
         { "__type__": "PThreadAdvisor" },
         { "__type__": "TemplateLiteralValidateAdvisor" },
-        { "__type__": "ModularizeJSAdvisor" }
+        { "__type__": "ModularizeJSAdvisor" },
+        { "__type__": "SimdAdvisor" }
       ]
     },
     {
