@@ -187,7 +187,7 @@ A Webinizer extension must have an ``index.ts`` in ``src`` folder which will hel
 
   export default async function load() {
     for (const md of moduleDirectories) {
-      await webinizer.loadAllModulesInDirctory(md);
+      await webinizer.loadAllModulesInDirectory(md);
     }
   }
 

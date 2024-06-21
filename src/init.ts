@@ -34,7 +34,7 @@ async function checkToolchainReadiness() {
   }
 }
 
-export async function loadAllModulesInDirctory(dir: string) {
+export async function loadAllModulesInDirectory(dir: string) {
   try {
     const modules = fs.readdirSync(dir);
 
@@ -81,7 +81,7 @@ export async function loadAllModulesInDirctory(dir: string) {
 export async function init() {
   await checkToolchainReadiness();
   for (const md of moduleDirectories) {
-    await loadAllModulesInDirctory(md);
+    await loadAllModulesInDirectory(md);
   }
 
   await loadAllExtensions();

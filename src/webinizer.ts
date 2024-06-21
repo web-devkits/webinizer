@@ -8,7 +8,7 @@
  * Webinizer Extension APIs
  */
 
-export { loadAllModulesInDirctory, init } from "./init";
+export { loadAllModulesInDirectory, init } from "./init";
 
 export { getLogger } from "./helper";
 
