@@ -14,6 +14,6 @@ const moduleDirectories = [builderPath, advisorPath, actionPath];
 
 export default async function load() {
   for (const md of moduleDirectories) {
-    await webinizer.loadAllModulesInDirctory(md);
+    await webinizer.loadAllModulesInDirectory(md);
   }
 }

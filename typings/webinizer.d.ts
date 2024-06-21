@@ -14,7 +14,7 @@ declare module "webinizer" {
    * Initialize modules from directories.
    * @param dir The directory for modules to load from.
    */
-  export function loadAllModulesInDirctory(dir: string): Promise<void>;
+  export function loadAllModulesInDirectory(dir: string): Promise<void>;
 
   /**
    * Create the logger object.
