@@ -87,7 +87,7 @@
     "graceful-fs": "^4.2.10",
     "helmet": "^7.0.0",
     "libnpmsearch": "^6.0.2",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "moment": "^2.29.4",
     "multiparty": "^4.2.3",
     "npm-package-arg": "^10.1.0",
